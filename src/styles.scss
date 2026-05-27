@@ -1,0 +1,17 @@
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  font-family:
+    Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #eef3f8;
+}
