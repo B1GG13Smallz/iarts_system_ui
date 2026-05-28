@@ -68,9 +68,23 @@ export class RequestIntake {
     this.showIntraForm = true;
   }
 
+  protected updateReferenceNumber(value: string): void {
+    this.referenceNumber = value;
+    this.intraRequest.callReference = value;
+    this.intraRequest.referenceNumber = value;
+  }
+
+  protected updateCallReference(value: string): void {
+    this.intraRequest.callReference = value;
+    this.referenceNumber = value;
+    this.intraRequest.referenceNumber = value;
+  }
+
   protected saveIntraRequest(): void {
     this.saveMessage = '';
-    this.intraRequest.referenceNumber = this.referenceNumber.trim();
+    const cleanReference = this.intraRequest.callReference.trim() || this.referenceNumber.trim();
+    this.updateReferenceNumber(cleanReference);
+    this.intraRequest.referenceNumber = cleanReference;
 
     if (!this.intraRequest.referenceNumber || !this.intraRequest.chiefDirectorate.trim() || !this.intraRequest.subDirectorate.trim() || !this.intraRequest.chiefUser.trim()) {
       this.saveMessage = 'Complete the reference number, Chief Directorate, Sub-Directorate and Chief User fields.';

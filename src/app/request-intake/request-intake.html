@@ -40,7 +40,8 @@
         <input
           name="referenceNumber"
           type="text"
-          [(ngModel)]="referenceNumber"
+          [ngModel]="referenceNumber"
+          (ngModelChange)="updateReferenceNumber($event)"
           placeholder="Enter reference number"
         />
       </label>
@@ -95,7 +96,14 @@
                 <td><input name="objective" type="text" [(ngModel)]="intraRequest.objective" /></td>
                 <td><input name="responsibility" type="text" [(ngModel)]="intraRequest.responsibility" /></td>
                 <td><input name="chiefUser" required type="text" [(ngModel)]="intraRequest.chiefUser" /></td>
-                <td><input name="callReference" type="text" [(ngModel)]="intraRequest.callReference" /></td>
+                <td>
+                  <input
+                    name="callReference"
+                    type="text"
+                    [ngModel]="intraRequest.callReference"
+                    (ngModelChange)="updateCallReference($event)"
+                  />
+                </td>
               </tr>
             </table>
             <div class="step-actions">
