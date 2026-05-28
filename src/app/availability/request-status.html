@@ -1,0 +1,25 @@
+<section class="status-card" aria-labelledby="status-title">
+  <div>
+    <span class="eyebrow">Status</span>
+    <h2 id="status-title">{{ statusLabel() }}</h2>
+  </div>
+
+  @if (availabilityService.request(); as request) {
+    <dl>
+      <div>
+        <dt>Reference</dt>
+        <dd>{{ request.referenceNumber }}</dd>
+      </div>
+      <div>
+        <dt>Equipment</dt>
+        <dd>{{ request.equipment }}</dd>
+      </div>
+    </dl>
+  }
+
+  @if (canProceed()) {
+    <button mat-raised-button color="primary" type="button" (click)="proceed.emit()">
+      Proceed
+    </button>
+  }
+</section>

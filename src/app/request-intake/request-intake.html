@@ -9,9 +9,23 @@
     </div>
 
     <nav>
-      <a routerLink="/requests" class="active">Request</a>
-      <a routerLink="/dashboard">Admin dashboard</a>
+      @if (isAdmin()) {
+        <a routerLink="/dashboard">Dashboard</a>
+      } @else {
+        <a routerLink="/requests" class="active">Request</a>
+      }
     </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+    </section>
   </aside>
 
   <section class="workspace">
@@ -31,69 +45,131 @@
       </label>
     </header>
 
-    <form class="intra-form">
-      <table class="form-table">
-        <tr>
-          <th colspan="4">ASSETS MANAGEMENT DETAILS</th>
-        </tr>
-        <tr>
-          <td>ITP No:</td>
-          <td>Order No:</td>
-          <td>Chief Directorate: <strong class="required">(compulsory field)</strong></td>
-          <td>Sub-Directorate: <strong class="required">(compulsory field)</strong></td>
-        </tr>
-        <tr>
-          <td><input name="itpNumber" type="text" /></td>
-          <td><input name="orderNumber" type="text" /></td>
-          <td><input name="chiefDirectorate" required type="text" /></td>
-          <td><input name="subDirectorate" required type="text" /></td>
-        </tr>
-      </table>
+    <section class="availability-workflow">
+      <app-availability-request [referenceNumber]="referenceNumber" />
+      <app-request-status (proceed)="proceedToIntraForm()" />
+    </section>
 
-      <table class="form-table">
-        <tr>
-          <th colspan="4">CLIENTS DETAILS</th>
-        </tr>
-        <tr>
-          <td>Objective:</td>
-          <td>Responsibility:</td>
-          <td>Chief User: <strong class="required">(compulsory field)</strong></td>
-          <td>Call Ref:</td>
-        </tr>
-        <tr>
-          <td><input name="objective" type="text" /></td>
-          <td><input name="responsibility" type="text" /></td>
-          <td><input name="chiefUser" required type="text" /></td>
-          <td><input name="callReference" type="text" /></td>
-        </tr>
-      </table>
+    @if (showIntraForm) {
+      <form class="intra-form">
+      <mat-stepper orientation="vertical" class="request-stepper">
+        <mat-step label="ASSETS MANAGEMENT DETAILS">
+          <div class="step-content">
+            <table class="form-table">
+              <tr>
+                <th colspan="4">ASSETS MANAGEMENT DETAILS</th>
+              </tr>
+              <tr>
+                <td>ITP No:</td>
+                <td>Order No:</td>
+                <td>Chief Directorate: <strong class="required">(compulsory field)</strong></td>
+                <td>Sub-Directorate: <strong class="required">(compulsory field)</strong></td>
+              </tr>
+              <tr>
+                <td><input name="itpNumber" type="text" [(ngModel)]="intraRequest.itpNumber" /></td>
+                <td><input name="orderNumber" type="text" [(ngModel)]="intraRequest.orderNumber" /></td>
+                <td><input name="chiefDirectorate" required type="text" [(ngModel)]="intraRequest.chiefDirectorate" /></td>
+                <td><input name="subDirectorate" required type="text" [(ngModel)]="intraRequest.subDirectorate" /></td>
+              </tr>
+            </table>
+            <div class="step-actions">
+              <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+            </div>
+          </div>
+        </mat-step>
 
-      <table class="form-table location-table">
-        <tr>
-          <th colspan="4">EQUIPMENT LOCATION DETAILS</th>
-        </tr>
-        <tr>
-          <th colspan="2">CURRENT LOCATION</th>
-          <th colspan="2">DESTINATION LOCATION</th>
-        </tr>
-        @for (location of currentLocation; track location.label; let index = $index) {
-          <tr>
-            <td class="label-cell">{{ location.label }}</td>
-            <td>{{ location.value }}</td>
-            <td class="label-cell">{{ destinationFields[index] }}</td>
-            <td><input [name]="'destination' + index" type="text" /></td>
-          </tr>
-        }
-        <tr>
-          <td colspan="4" class="reason-heading">Reason for movement and duration: return back to storeroom</td>
-        </tr>
-        <tr>
-          <td colspan="4" rowspan="2">
-            <textarea name="movementReason" aria-label="Reason for movement and duration"></textarea>
-          </td>
-        </tr>
-        <tr></tr>
-      </table>
-    </form>
+        <mat-step label="CLIENT DETAILS">
+          <div class="step-content">
+            <table class="form-table">
+              <tr>
+                <th colspan="4">CLIENT DETAILS</th>
+              </tr>
+              <tr>
+                <td>Objective:</td>
+                <td>Responsibility:</td>
+                <td>Chief User: <strong class="required">(compulsory field)</strong></td>
+                <td>Call Ref:</td>
+              </tr>
+              <tr>
+                <td><input name="objective" type="text" [(ngModel)]="intraRequest.objective" /></td>
+                <td><input name="responsibility" type="text" [(ngModel)]="intraRequest.responsibility" /></td>
+                <td><input name="chiefUser" required type="text" [(ngModel)]="intraRequest.chiefUser" /></td>
+                <td><input name="callReference" type="text" [(ngModel)]="intraRequest.callReference" /></td>
+              </tr>
+            </table>
+            <div class="step-actions">
+              <button mat-stroked-button matStepperPrevious type="button">Back</button>
+              <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+            </div>
+          </div>
+        </mat-step>
+
+        <mat-step label="EQUIPMENT LOCATION DETAILS">
+          <div class="step-content">
+            <table class="form-table location-table">
+              <tr>
+                <th colspan="4">EQUIPMENT LOCATION DETAILS</th>
+              </tr>
+              <tr>
+                <th colspan="2">CURRENT LOCATION</th>
+                <th colspan="2">DESTINATION LOCATION</th>
+              </tr>
+              @for (location of currentLocation; track location.label; let index = $index) {
+                <tr>
+                  <td class="label-cell">{{ location.label }}</td>
+                  <td>{{ location.value }}</td>
+                  <td class="label-cell">{{ destinationFields[index] }}</td>
+                  <td>
+                    @switch (index) {
+                      @case (0) {
+                        <input name="destinationOwner" type="text" [(ngModel)]="intraRequest.destinationOwner" />
+                      }
+                      @case (1) {
+                        <input name="destinationBuilding" type="text" [(ngModel)]="intraRequest.destinationBuilding" />
+                      }
+                      @case (2) {
+                        <input name="destinationFloor" type="text" [(ngModel)]="intraRequest.destinationFloor" />
+                      }
+                      @case (3) {
+                        <input name="destinationOffice" type="text" [(ngModel)]="intraRequest.destinationOffice" />
+                      }
+                      @case (4) {
+                        <input name="destinationRegion" type="text" [(ngModel)]="intraRequest.destinationRegion" />
+                      }
+                      @case (5) {
+                        <input name="destinationContact" type="text" [(ngModel)]="intraRequest.destinationContact" />
+                      }
+                    }
+                  </td>
+                </tr>
+              }
+              <tr>
+                <td colspan="4" class="reason-heading">Reason for movement and duration: return back to storeroom</td>
+              </tr>
+              <tr>
+                <td colspan="4" rowspan="2">
+                  <textarea
+                    name="movementReason"
+                    aria-label="Reason for movement and duration"
+                    [(ngModel)]="intraRequest.movementReason"
+                  ></textarea>
+                </td>
+              </tr>
+              <tr></tr>
+            </table>
+            @if (saveMessage) {
+              <p class="save-message">{{ saveMessage }}</p>
+            }
+            <div class="step-actions">
+              <button mat-stroked-button matStepperPrevious type="button">Back</button>
+              <button mat-raised-button color="primary" type="button" [disabled]="isSaving" (click)="saveIntraRequest()">
+                {{ isSaving ? 'Saving request' : 'Save request' }}
+              </button>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+      </form>
+    }
   </section>
 </main>

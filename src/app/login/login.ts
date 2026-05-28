@@ -43,7 +43,10 @@ export class Login {
       .login(this.username.trim(), this.password)
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
-        next: () => this.router.navigateByUrl('/requests'),
+        next: (response) => {
+          const route = response.roles.includes('ADMIN') ? '/dashboard' : '/requests';
+          this.router.navigateByUrl(route);
+        },
         error: () => this.loginError.set('Sign in failed. Check your username and password.'),
       });
   }

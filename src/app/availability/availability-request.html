@@ -1,0 +1,24 @@
+<section class="availability-card" aria-labelledby="availability-title">
+  <div>
+    <span class="eyebrow">Equipment availability</span>
+    <h2 id="availability-title">Send request to admin</h2>
+  </div>
+
+  <label>
+    <span>Equipment requested</span>
+    <input
+      name="equipment"
+      type="text"
+      [(ngModel)]="equipment"
+      placeholder="Example: Laptop"
+    />
+  </label>
+
+  @if (message()) {
+    <p class="message">{{ message() }}</p>
+  }
+
+  <button mat-raised-button color="primary" type="button" (click)="submitAvailabilityRequest()">
+    Send availability request
+  </button>
+</section>

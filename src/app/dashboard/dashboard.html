@@ -9,24 +9,22 @@
     </div>
 
     <nav>
-      <button mat-button routerLink="/requests" type="button">
-        Request
-      </button>
-      @for (module of modules; track module) {
-        <button
-          mat-button
-          type="button"
-          [class.active]="activeModule() === module"
-          (click)="setModule(module)"
-        >
-          {{ module }}
-        </button>
+      @if (isAdmin()) {
+        <a routerLink="/dashboard" class="active">Dashboard</a>
+      } @else {
+        <a routerLink="/requests">Request</a>
       }
     </nav>
 
-    <section class="policy-card">
-      <span class="eyebrow">Phase 1 scope</span>
-      <p>Workflow digitisation, approval control, assignment history, stock visibility and audit logging.</p>
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
     </section>
   </aside>
 
@@ -49,6 +47,46 @@
           <strong>{{ stat.value }}</strong>
           <small>{{ stat.trend }}</small>
         </article>
+      }
+    </section>
+
+    <section class="availability-panel" aria-labelledby="availability-admin-title">
+      <div class="panel-heading">
+        <div>
+          <span class="eyebrow">Admin confirmation</span>
+          <h2 id="availability-admin-title">Equipment availability request</h2>
+        </div>
+      </div>
+
+      @if (availabilityService.requests().length) {
+        @for (request of availabilityService.requests(); track request.id) {
+          <div class="availability-admin-item">
+            <div class="availability-admin-grid">
+              <div>
+                <span>Reference</span>
+                <strong>{{ request.referenceNumber }}</strong>
+              </div>
+              <div>
+                <span>Equipment</span>
+                <strong>{{ request.equipment }}</strong>
+              </div>
+              <div>
+                <span>Status</span>
+                <strong>{{ request.status }}</strong>
+              </div>
+            </div>
+            <div class="availability-actions">
+              <button mat-raised-button color="primary" type="button" (click)="updateAvailability(request.id, 'AVAILABLE')">
+                Available
+              </button>
+              <button mat-stroked-button type="button" (click)="updateAvailability(request.id, 'UNAVAILABLE')">
+                Not available
+              </button>
+            </div>
+          </div>
+        }
+      } @else {
+        <p class="empty-state">No equipment availability requests waiting for confirmation.</p>
       }
     </section>
 

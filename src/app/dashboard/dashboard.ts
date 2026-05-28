@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -7,6 +7,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { AuthService, AuthSession } from '../auth/auth';
+import { AvailabilityRequestService, AvailabilityStatus } from '../availability/availability-request.service';
 
 type RoleKey = 'user' | 'store' | 'asset' | 'security' | 'manager';
 
@@ -34,6 +36,31 @@ interface WorkflowStep {
 export class Dashboard {
   protected readonly activeRole = signal<RoleKey>('store');
   protected readonly activeModule = signal('Request control');
+
+  constructor(
+    protected readonly availabilityService: AvailabilityRequestService,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+  ) {
+    this.availabilityService.loadAll().subscribe();
+  }
+
+  protected isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
+  protected session(): AuthSession | null {
+    return this.authService.currentSession();
+  }
+
+  protected logout(): void {
+    this.authService.logout();
+    this.router.navigateByUrl('/login');
+  }
+
+  protected updateAvailability(id: number, status: AvailabilityStatus): void {
+    this.availabilityService.updateStatus(id, status).subscribe();
+  }
 
   protected readonly stats = [
     { label: 'Open requests', value: '128', trend: '24 awaiting stock checks' },

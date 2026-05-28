@@ -10,6 +10,8 @@ export interface AuthResponse {
   roles: string[];
 }
 
+export type AuthSession = AuthResponse;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -23,6 +25,33 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(this.authUrl, { username, password })
       .pipe(tap((response) => this.storeSession(response)));
+  }
+
+  currentSession(): AuthSession | null {
+    const session = localStorage.getItem(this.storageKey);
+
+    if (!session) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(session) as AuthSession;
+    } catch {
+      localStorage.removeItem(this.storageKey);
+      return null;
+    }
+  }
+
+  hasRole(role: string): boolean {
+    return this.currentSession()?.roles.includes(role) ?? false;
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('ADMIN');
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.storageKey);
   }
 
   private storeSession(response: AuthResponse): void {
