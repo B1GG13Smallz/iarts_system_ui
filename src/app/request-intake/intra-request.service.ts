@@ -22,6 +22,13 @@ export interface IntraRequestPayload {
   movementReason: string;
 }
 
+export interface IntraRequestRecord extends IntraRequestPayload {
+  id: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -35,6 +42,10 @@ export class IntraRequestService {
 
   save(payload: IntraRequestPayload): Observable<unknown> {
     return this.http.post(this.apiUrl, payload, { headers: this.authHeaders() });
+  }
+
+  findMine(): Observable<IntraRequestRecord[]> {
+    return this.http.get<IntraRequestRecord[]>(`${this.apiUrl}/mine`, { headers: this.authHeaders() });
   }
 
   private authHeaders(): HttpHeaders {

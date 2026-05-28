@@ -1,0 +1,75 @@
+<main class="status-shell">
+  <aside class="sidebar" aria-label="IARTS request status navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/requests">Request</a>
+      <a routerLink="/request-status" class="active">Request status</a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">Request status</span>
+        <h1>Submitted request forms</h1>
+      </div>
+    </header>
+
+    @if (message()) {
+      <p class="message">{{ message() }}</p>
+    }
+
+    <section class="status-list">
+      @for (request of requests(); track request.id) {
+        <article class="status-card">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">Reference</span>
+              <h2>{{ request.referenceNumber }}</h2>
+            </div>
+            <strong>{{ statusLabel(request.status) }}</strong>
+          </div>
+
+          <mat-progress-bar mode="determinate" [value]="progressFor(request.status)" />
+
+          <div class="detail-grid">
+            <div>
+              <span>Chief Directorate</span>
+              <strong>{{ request.chiefDirectorate }}</strong>
+            </div>
+            <div>
+              <span>Sub-Directorate</span>
+              <strong>{{ request.subDirectorate }}</strong>
+            </div>
+            <div>
+              <span>Chief User</span>
+              <strong>{{ request.chiefUser }}</strong>
+            </div>
+            <div>
+              <span>Destination</span>
+              <strong>{{ request.destinationBuilding }} {{ request.destinationFloor }} {{ request.destinationOffice }}</strong>
+            </div>
+          </div>
+        </article>
+      }
+    </section>
+  </section>
+</main>

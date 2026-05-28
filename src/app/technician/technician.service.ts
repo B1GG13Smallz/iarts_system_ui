@@ -28,6 +28,8 @@ export interface TechnicianRequestDetails {
   equipment: string;
 }
 
+export type TechnicianRequestStatus = 'SUBMITTED' | 'ASSIGNED' | 'IN_PROGRESS' | 'READY_FOR_DELIVERY' | 'COMPLETED';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -42,6 +44,14 @@ export class TechnicianService {
   findByReference(referenceNumber: string): Observable<TechnicianRequestDetails> {
     return this.http.get<TechnicianRequestDetails>(
       `${this.apiUrl}/${encodeURIComponent(referenceNumber)}`,
+      { headers: this.authHeaders() },
+    );
+  }
+
+  updateStatus(requestId: number, status: TechnicianRequestStatus): Observable<TechnicianRequestDetails['request']> {
+    return this.http.patch<TechnicianRequestDetails['request']>(
+      `http://localhost:8080/api/intra-requests/${requestId}/status`,
+      { status },
       { headers: this.authHeaders() },
     );
   }

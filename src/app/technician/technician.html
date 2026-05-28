@@ -89,6 +89,23 @@
           </div>
         </div>
 
+        <section class="process-panel" aria-label="Technician process update">
+          <div>
+            <span class="eyebrow">Process update</span>
+            <h3>Update request progress</h3>
+          </div>
+          <div class="process-actions">
+            @for (status of statuses; track status.value) {
+              <button mat-stroked-button type="button" (click)="updateStatus(status.value)">
+                {{ status.label }}
+              </button>
+            }
+          </div>
+          @if (statusMessage()) {
+            <p class="status-message">{{ statusMessage() }}</p>
+          }
+        </section>
+
         <table class="details-table">
           <tr>
             <th colspan="2">Destination location</th>

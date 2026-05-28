@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService, AuthSession } from '../auth/auth';
-import { TechnicianRequestDetails, TechnicianService } from './technician.service';
+import { TechnicianRequestDetails, TechnicianRequestStatus, TechnicianService } from './technician.service';
 
 @Component({
   selector: 'app-technician',
@@ -17,6 +17,13 @@ export class Technician {
   protected readonly result = signal<TechnicianRequestDetails | null>(null);
   protected readonly message = signal('');
   protected readonly isSearching = signal(false);
+  protected readonly statusMessage = signal('');
+  protected readonly statuses: { label: string; value: TechnicianRequestStatus }[] = [
+    { label: 'Assigned', value: 'ASSIGNED' },
+    { label: 'In progress', value: 'IN_PROGRESS' },
+    { label: 'Ready for delivery', value: 'READY_FOR_DELIVERY' },
+    { label: 'Completed', value: 'COMPLETED' },
+  ];
 
   constructor(
     private readonly authService: AuthService,
@@ -47,6 +54,23 @@ export class Technician {
         next: (details) => this.result.set(details),
         error: () => this.message.set('No request found for that reference number.'),
       });
+  }
+
+  protected updateStatus(status: TechnicianRequestStatus): void {
+    const currentResult = this.result();
+
+    if (!currentResult) {
+      return;
+    }
+
+    this.statusMessage.set('');
+    this.technicianService.updateStatus(currentResult.request.id, status).subscribe({
+      next: (updatedRequest) => {
+        this.result.set({ ...currentResult, request: updatedRequest });
+        this.statusMessage.set('Request process updated.');
+      },
+      error: () => this.statusMessage.set('Could not update request process.'),
+    });
   }
 
   protected logout(): void {
