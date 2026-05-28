@@ -50,24 +50,93 @@
 
           <mat-progress-bar mode="determinate" [value]="progressFor(request.status)" />
 
-          <div class="detail-grid">
-            <div>
-              <span>Chief Directorate</span>
-              <strong>{{ request.chiefDirectorate }}</strong>
-            </div>
-            <div>
-              <span>Sub-Directorate</span>
-              <strong>{{ request.subDirectorate }}</strong>
-            </div>
-            <div>
-              <span>Chief User</span>
-              <strong>{{ request.chiefUser }}</strong>
-            </div>
-            <div>
-              <span>Destination</span>
-              <strong>{{ request.destinationBuilding }} {{ request.destinationFloor }} {{ request.destinationOffice }}</strong>
-            </div>
-          </div>
+          <table class="form-table">
+            <tr>
+              <th colspan="4">ASSETS MANAGEMENT DETAILS</th>
+            </tr>
+            <tr>
+              <td>ITP No:</td>
+              <td>Order No:</td>
+              <td>Chief Directorate:</td>
+              <td>Sub-Directorate:</td>
+            </tr>
+            <tr>
+              <td>{{ request.itpNumber || 'Not captured' }}</td>
+              <td>{{ request.orderNumber || 'Not captured' }}</td>
+              <td>{{ request.chiefDirectorate }}</td>
+              <td>{{ request.subDirectorate }}</td>
+            </tr>
+          </table>
+
+          <table class="form-table">
+            <tr>
+              <th colspan="4">CLIENT DETAILS</th>
+            </tr>
+            <tr>
+              <td>Objective:</td>
+              <td>Responsibility:</td>
+              <td>Chief User:</td>
+              <td>Call Ref:</td>
+            </tr>
+            <tr>
+              <td>{{ request.objective || 'Not captured' }}</td>
+              <td>{{ request.responsibility || 'Not captured' }}</td>
+              <td>{{ request.chiefUser }}</td>
+              <td>{{ request.callReference || 'Not captured' }}</td>
+            </tr>
+          </table>
+
+          <table class="form-table location-table">
+            <tr>
+              <th colspan="4">EQUIPMENT LOCATION DETAILS</th>
+            </tr>
+            <tr>
+              <th colspan="2">CURRENT LOCATION</th>
+              <th colspan="2">DESTINATION LOCATION</th>
+            </tr>
+            <tr>
+              <td class="label-cell">Owner:</td>
+              <td>IS STOREROOM</td>
+              <td class="label-cell">Owner:</td>
+              <td>{{ request.destinationOwner || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Building:</td>
+              <td>CGO</td>
+              <td class="label-cell">Building:</td>
+              <td>{{ request.destinationBuilding || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Floor:</td>
+              <td>4TH</td>
+              <td class="label-cell">Floor:</td>
+              <td>{{ request.destinationFloor || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Office: (white sticker on the door)</td>
+              <td>441</td>
+              <td class="label-cell">Office: (white sticker on the door)</td>
+              <td>{{ request.destinationOffice || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Region:</td>
+              <td>HEAD OFFICE</td>
+              <td class="label-cell">Region:</td>
+              <td>{{ request.destinationRegion || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Contact:</td>
+              <td>012 406 1724</td>
+              <td class="label-cell">Contact:</td>
+              <td>{{ request.destinationContact || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td colspan="4" class="reason-heading">Reason for movement and duration: return back to storeroom</td>
+            </tr>
+            <tr>
+              <td colspan="4">{{ request.movementReason || 'Not captured' }}</td>
+            </tr>
+          </table>
         </article>
       }
     </section>
