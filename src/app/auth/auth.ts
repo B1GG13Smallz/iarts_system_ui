@@ -50,6 +50,10 @@ export class AuthService {
     return this.hasRole('ADMIN');
   }
 
+  isTechnician(): boolean {
+    return this.hasRole('TECHNICIAN');
+  }
+
   logout(): void {
     localStorage.removeItem(this.storageKey);
   }

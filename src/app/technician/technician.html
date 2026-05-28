@@ -1,0 +1,128 @@
+<main class="technician-shell">
+  <aside class="sidebar" aria-label="Technician navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>Technician workspace</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/technician" class="active">Technician</a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">Technician</span>
+        <h1>Find request</h1>
+      </div>
+    </header>
+
+    <section class="search-panel">
+      <label>
+        <span>Reference number</span>
+        <input
+          name="referenceNumber"
+          type="text"
+          [(ngModel)]="referenceNumber"
+          placeholder="Enter assigned reference number"
+          (keyup.enter)="search()"
+        />
+      </label>
+      <button mat-raised-button color="primary" type="button" [disabled]="isSearching()" (click)="search()">
+        {{ isSearching() ? 'Searching' : 'Search' }}
+      </button>
+    </section>
+
+    @if (message()) {
+      <p class="message">{{ message() }}</p>
+    }
+
+    @if (result(); as details) {
+      <section class="details-panel" aria-label="Request details">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Request details</span>
+            <h2>{{ details.request.referenceNumber }}</h2>
+          </div>
+          <span class="status-pill">{{ details.availabilityStatus }}</span>
+        </div>
+
+        <div class="detail-grid">
+          <div>
+            <span>Equipment</span>
+            <strong>{{ details.equipment || 'Not captured' }}</strong>
+          </div>
+          <div>
+            <span>Request status</span>
+            <strong>{{ details.request.status }}</strong>
+          </div>
+          <div>
+            <span>Chief Directorate</span>
+            <strong>{{ details.request.chiefDirectorate }}</strong>
+          </div>
+          <div>
+            <span>Sub-Directorate</span>
+            <strong>{{ details.request.subDirectorate }}</strong>
+          </div>
+          <div>
+            <span>Chief User</span>
+            <strong>{{ details.request.chiefUser }}</strong>
+          </div>
+          <div>
+            <span>Call Ref</span>
+            <strong>{{ details.request.callReference || 'Not captured' }}</strong>
+          </div>
+        </div>
+
+        <table class="details-table">
+          <tr>
+            <th colspan="2">Destination location</th>
+          </tr>
+          <tr>
+            <td>Owner</td>
+            <td>{{ details.request.destinationOwner }}</td>
+          </tr>
+          <tr>
+            <td>Building</td>
+            <td>{{ details.request.destinationBuilding }}</td>
+          </tr>
+          <tr>
+            <td>Floor</td>
+            <td>{{ details.request.destinationFloor }}</td>
+          </tr>
+          <tr>
+            <td>Office</td>
+            <td>{{ details.request.destinationOffice }}</td>
+          </tr>
+          <tr>
+            <td>Region</td>
+            <td>{{ details.request.destinationRegion }}</td>
+          </tr>
+          <tr>
+            <td>Contact</td>
+            <td>{{ details.request.destinationContact }}</td>
+          </tr>
+          <tr>
+            <td>Reason</td>
+            <td>{{ details.request.movementReason }}</td>
+          </tr>
+        </table>
+      </section>
+    }
+  </section>
+</main>
