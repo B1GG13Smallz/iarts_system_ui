@@ -44,10 +44,10 @@ export class Login {
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {
-          const route = response.roles.includes('TECHNICIAN')
-            ? '/technician'
-            : response.roles.includes('ADMIN')
-              ? '/dashboard'
+          const route = response.roles.includes('ADMIN')
+            ? '/dashboard'
+            : response.roles.includes('TECHNICIAN')
+              ? '/technician'
               : '/requests';
           this.router.navigateByUrl(route);
         },
