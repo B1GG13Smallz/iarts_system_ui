@@ -1,0 +1,69 @@
+<main class="login-shell">
+  <section class="login-panel" aria-labelledby="login-title">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <div class="login-copy">
+      <span class="eyebrow">Department of Public Works</span>
+      <h1 id="login-title">Sign in to IARTS</h1>
+    </div>
+
+    <form class="login-form" (ngSubmit)="submitLogin()" #loginForm="ngForm">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input
+          matInput
+          autocomplete="username"
+          name="username"
+          required
+          type="text"
+          [(ngModel)]="username"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          autocomplete="current-password"
+          name="password"
+          required
+          type="password"
+          [(ngModel)]="password"
+        />
+      </mat-form-field>
+
+      @if (loginError()) {
+        <p class="login-error" role="alert">{{ loginError() }}</p>
+      }
+
+      <button mat-raised-button class="login-button" type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Signing in' : 'Sign in' }}
+      </button>
+    </form>
+  </section>
+
+  <section class="login-context" aria-label="System context">
+    <span class="eyebrow">Secure asset operations</span>
+    <h2>Request, approve, issue and audit ICT assets from one workspace.</h2>
+    <div class="context-grid">
+      <div>
+        <strong>Stock</strong>
+        <span>Verify availability before allocation.</span>
+      </div>
+      <div>
+        <strong>Approvals</strong>
+        <span>Control take-home and removal workflows.</span>
+      </div>
+      <div>
+        <strong>Audit</strong>
+        <span>Preserve traceable asset decisions.</span>
+      </div>
+    </div>
+  </section>
+</main>

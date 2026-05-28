@@ -1,0 +1,99 @@
+<main class="request-shell">
+  <aside class="sidebar" aria-label="IARTS request navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/requests" class="active">Request</a>
+      <a routerLink="/dashboard">Admin dashboard</a>
+    </nav>
+  </aside>
+
+  <section class="workspace">
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">Request intake</span>
+        <h1>User request</h1>
+      </div>
+      <label class="reference-field">
+        <span>Reference number</span>
+        <input
+          name="referenceNumber"
+          type="text"
+          [(ngModel)]="referenceNumber"
+          placeholder="Enter reference number"
+        />
+      </label>
+    </header>
+
+    <form class="intra-form">
+      <table class="form-table">
+        <tr>
+          <th colspan="4">ASSETS MANAGEMENT DETAILS</th>
+        </tr>
+        <tr>
+          <td>ITP No:</td>
+          <td>Order No:</td>
+          <td>Chief Directorate: <strong class="required">(compulsory field)</strong></td>
+          <td>Sub-Directorate: <strong class="required">(compulsory field)</strong></td>
+        </tr>
+        <tr>
+          <td><input name="itpNumber" type="text" /></td>
+          <td><input name="orderNumber" type="text" /></td>
+          <td><input name="chiefDirectorate" required type="text" /></td>
+          <td><input name="subDirectorate" required type="text" /></td>
+        </tr>
+      </table>
+
+      <table class="form-table">
+        <tr>
+          <th colspan="4">CLIENTS DETAILS</th>
+        </tr>
+        <tr>
+          <td>Objective:</td>
+          <td>Responsibility:</td>
+          <td>Chief User: <strong class="required">(compulsory field)</strong></td>
+          <td>Call Ref:</td>
+        </tr>
+        <tr>
+          <td><input name="objective" type="text" /></td>
+          <td><input name="responsibility" type="text" /></td>
+          <td><input name="chiefUser" required type="text" /></td>
+          <td><input name="callReference" type="text" /></td>
+        </tr>
+      </table>
+
+      <table class="form-table location-table">
+        <tr>
+          <th colspan="4">EQUIPMENT LOCATION DETAILS</th>
+        </tr>
+        <tr>
+          <th colspan="2">CURRENT LOCATION</th>
+          <th colspan="2">DESTINATION LOCATION</th>
+        </tr>
+        @for (location of currentLocation; track location.label; let index = $index) {
+          <tr>
+            <td class="label-cell">{{ location.label }}</td>
+            <td>{{ location.value }}</td>
+            <td class="label-cell">{{ destinationFields[index] }}</td>
+            <td><input [name]="'destination' + index" type="text" /></td>
+          </tr>
+        }
+        <tr>
+          <td colspan="4" class="reason-heading">Reason for movement and duration: return back to storeroom</td>
+        </tr>
+        <tr>
+          <td colspan="4" rowspan="2">
+            <textarea name="movementReason" aria-label="Reason for movement and duration"></textarea>
+          </td>
+        </tr>
+        <tr></tr>
+      </table>
+    </form>
+  </section>
+</main>
