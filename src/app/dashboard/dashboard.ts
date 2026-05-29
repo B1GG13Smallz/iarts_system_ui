@@ -7,8 +7,17 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService, AuthSession } from '../auth/auth';
-import { AvailabilityRequestService, AvailabilityStatus } from '../availability/availability-request.service';
+import {
+  AvailabilityRequestService,
+  AvailabilityStatus,
+  EquipmentAvailabilityRequest,
+} from '../availability/availability-request.service';
+import {
+  EquipmentDetailsDialog,
+  EquipmentDetailsDialogResult,
+} from './equipment-details-dialog';
 
 type RoleKey = 'user' | 'store' | 'asset' | 'security' | 'manager';
 
@@ -28,6 +37,7 @@ interface WorkflowStep {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatDialogModule,
     RouterLink,
   ],
   templateUrl: './dashboard.html',
@@ -40,6 +50,7 @@ export class Dashboard {
   constructor(
     protected readonly availabilityService: AvailabilityRequestService,
     private readonly authService: AuthService,
+    private readonly dialog: MatDialog,
     private readonly router: Router,
   ) {
     this.availabilityService.loadAll().subscribe();
@@ -60,6 +71,26 @@ export class Dashboard {
 
   protected updateAvailability(id: number, status: AvailabilityStatus): void {
     this.availabilityService.updateStatus(id, status).subscribe();
+  }
+
+  protected openAvailableDialog(request: EquipmentAvailabilityRequest): void {
+    this.dialog
+      .open<EquipmentDetailsDialog, EquipmentAvailabilityRequest, EquipmentDetailsDialogResult>(
+        EquipmentDetailsDialog,
+        {
+          autoFocus: 'first-tabbable',
+          data: request,
+          disableClose: true,
+        },
+      )
+      .afterClosed()
+      .subscribe((details) => {
+        if (!details) {
+          return;
+        }
+
+        this.availabilityService.updateStatus(request.id, 'AVAILABLE', details).subscribe();
+      });
   }
 
   protected readonly stats = [

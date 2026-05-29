@@ -1,0 +1,23 @@
+.equipment-dialog-card {
+  width: min(520px, calc(100vw - 32px));
+  border-radius: 8px;
+}
+
+.equipment-dialog-form {
+  display: grid;
+  gap: 14px;
+  padding-top: 18px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+}
+
+mat-card-actions {
+  gap: 10px;
+  padding: 4px 0 0;
+}

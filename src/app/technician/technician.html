@@ -89,21 +89,28 @@
           </div>
         </div>
 
-        <section class="process-panel" aria-label="Technician process update">
+        <section class="available-equipment-panel" aria-label="Available equipment details">
           <div>
-            <span class="eyebrow">Process update</span>
-            <h3>Update request progress</h3>
+            <span class="eyebrow">Available equipment details</span>
+            <h3>Confirmed equipment information</h3>
           </div>
-          <div class="process-actions">
-            @for (status of statuses; track status.value) {
-              <button mat-stroked-button type="button" (click)="updateStatus(status.value)">
-                {{ status.label }}
-              </button>
-            }
-          </div>
-          @if (statusMessage()) {
-            <p class="status-message">{{ statusMessage() }}</p>
-          }
+
+          <table class="equipment-details-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Serial number</th>
+                <th>Bar code number</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ details.equipmentDescription || 'Not captured' }}</td>
+                <td>{{ details.serialNumber || 'Not captured' }}</td>
+                <td>{{ details.barCodeNumber || 'Not captured' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </section>
 
         <table class="details-table">
@@ -139,6 +146,23 @@
             <td>{{ details.request.movementReason }}</td>
           </tr>
         </table>
+
+        <section class="process-panel" aria-label="Technician process update">
+          <div>
+            <span class="eyebrow">Process update</span>
+            <h3>Update request progress</h3>
+          </div>
+          <div class="process-actions">
+            @for (status of statuses; track status.value) {
+              <button mat-stroked-button type="button" (click)="updateStatus(status.value)">
+                {{ status.label }}
+              </button>
+            }
+          </div>
+          @if (statusMessage()) {
+            <p class="status-message">{{ statusMessage() }}</p>
+          }
+        </section>
       </section>
     }
   </section>

@@ -9,16 +9,25 @@ export interface EquipmentAvailabilityRequest {
   id: number;
   referenceNumber: string;
   equipment: string;
+  description: string | null;
+  serialNumber: string | null;
+  barCodeNumber: string | null;
   status: AvailabilityStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AvailableEquipmentDetails {
+  description: string;
+  serialNumber: string;
+  barCodeNumber: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class AvailabilityRequestService {
-  private readonly apiUrl = 'http://localhost:8080/api/availability-requests';
+  private readonly apiUrl = '/api/availability-requests';
   readonly request = signal<EquipmentAvailabilityRequest | null>(null);
   readonly requests = signal<EquipmentAvailabilityRequest[]>([]);
 
@@ -55,11 +64,15 @@ export class AvailabilityRequestService {
       .pipe(tap((requests) => this.requests.set(requests)));
   }
 
-  updateStatus(id: number, status: AvailabilityStatus): Observable<EquipmentAvailabilityRequest> {
+  updateStatus(
+    id: number,
+    status: AvailabilityStatus,
+    details?: AvailableEquipmentDetails,
+  ): Observable<EquipmentAvailabilityRequest> {
     return this.http
       .patch<EquipmentAvailabilityRequest>(
         `${this.apiUrl}/${id}/status`,
-        { status },
+        { status, ...details },
         { headers: this.authHeaders() },
       )
       .pipe(

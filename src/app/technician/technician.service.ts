@@ -15,6 +15,12 @@ export interface TechnicianRequestDetails {
     responsibility: string;
     chiefUser: string;
     callReference: string;
+    currentOwner: string;
+    currentBuilding: string;
+    currentFloor: string;
+    currentOffice: string;
+    currentRegion: string;
+    currentContact: string;
     destinationOwner: string;
     destinationBuilding: string;
     destinationFloor: string;
@@ -26,6 +32,9 @@ export interface TechnicianRequestDetails {
   };
   availabilityStatus: string;
   equipment: string;
+  equipmentDescription: string;
+  serialNumber: string;
+  barCodeNumber: string;
 }
 
 export type TechnicianRequestStatus = 'SUBMITTED' | 'ASSIGNED' | 'IN_PROGRESS' | 'READY_FOR_DELIVERY' | 'COMPLETED';
@@ -34,7 +43,7 @@ export type TechnicianRequestStatus = 'SUBMITTED' | 'ASSIGNED' | 'IN_PROGRESS' |
   providedIn: 'root',
 })
 export class TechnicianService {
-  private readonly apiUrl = 'http://localhost:8080/api/intra-requests/reference';
+  private readonly apiUrl = '/api/intra-requests/reference';
 
   constructor(
     private readonly authService: AuthService,
@@ -50,7 +59,7 @@ export class TechnicianService {
 
   updateStatus(requestId: number, status: TechnicianRequestStatus): Observable<TechnicianRequestDetails['request']> {
     return this.http.patch<TechnicianRequestDetails['request']>(
-      `http://localhost:8080/api/intra-requests/${requestId}/status`,
+      `/api/intra-requests/${requestId}/status`,
       { status },
       { headers: this.authHeaders() },
     );

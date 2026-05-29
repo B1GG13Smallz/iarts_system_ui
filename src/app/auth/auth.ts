@@ -12,11 +12,14 @@ export interface AuthResponse {
 
 export type AuthSession = AuthResponse;
 
+const ADMIN_ROLES = ['ADMIN', 'ICT_STOREROOM'];
+const ASSET_APPROVAL_ROLES = ['ASSET_MANAGEMENT'];
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly authUrl = 'http://localhost:8080/api/auth/login';
+  private readonly authUrl = '/api/auth/login';
   private readonly storageKey = 'iarts.auth';
 
   constructor(private readonly http: HttpClient) {}
@@ -46,12 +49,32 @@ export class AuthService {
     return this.currentSession()?.roles.includes(role) ?? false;
   }
 
+  hasAnyRole(roles: string[], session: AuthSession | null = this.currentSession()): boolean {
+    return roles.some((role) => session?.roles.includes(role));
+  }
+
   isAdmin(): boolean {
-    return this.hasRole('ADMIN');
+    return this.hasAnyRole(ADMIN_ROLES);
   }
 
   isTechnician(): boolean {
     return this.hasRole('TECHNICIAN');
+  }
+
+  routeForSession(session: AuthSession): string {
+    if (this.hasAnyRole(ASSET_APPROVAL_ROLES, session)) {
+      return '/assets-approval';
+    }
+
+    if (this.hasAnyRole(ADMIN_ROLES, session)) {
+      return '/dashboard';
+    }
+
+    if (this.hasAnyRole(['TECHNICIAN'], session)) {
+      return '/technician';
+    }
+
+    return '/requests';
   }
 
   logout(): void {

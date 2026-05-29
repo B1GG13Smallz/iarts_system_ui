@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AvailabilityRequestService } from './availability-request.service';
 
@@ -8,11 +8,17 @@ import { AvailabilityRequestService } from './availability-request.service';
   templateUrl: './request-status.html',
   styleUrl: './request-status.scss',
 })
-export class RequestStatus {
+export class RequestStatus implements OnDestroy {
   @Output() proceed = new EventEmitter<void>();
+  private readonly refreshIntervalId: ReturnType<typeof setInterval>;
 
   constructor(protected readonly availabilityService: AvailabilityRequestService) {
-    this.availabilityService.loadLatestMine().subscribe();
+    this.refreshStatus();
+    this.refreshIntervalId = setInterval(() => this.refreshStatus(), 5000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.refreshIntervalId);
   }
 
   protected statusLabel(): string {
@@ -31,5 +37,9 @@ export class RequestStatus {
 
   protected canProceed(): boolean {
     return this.availabilityService.request()?.status === 'AVAILABLE';
+  }
+
+  private refreshStatus(): void {
+    this.availabilityService.loadLatestMine().subscribe();
   }
 }

@@ -1,0 +1,225 @@
+<main class="assets-shell">
+  <aside class="sidebar" aria-label="Assets approval navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>Asset management approval</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/assets-approval" class="active">Assets approval</a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">Assets approval</span>
+        <h1>INTRA request review</h1>
+      </div>
+
+      @if (requests().length > 1) {
+        <label class="request-selector">
+          <span>Reference number</span>
+          <select name="selectedRequestId" [ngModel]="selectedRequestId()" (ngModelChange)="selectRequest($event)">
+            @for (request of requests(); track request.id) {
+              <option [ngValue]="request.id">{{ request.referenceNumber }}</option>
+            }
+          </select>
+        </label>
+      }
+    </header>
+
+    @if (loadMessage()) {
+      <p class="message">{{ loadMessage() }}</p>
+    }
+
+    <form class="assets-form">
+      <section class="single-page-panel">
+        <div class="step-content">
+          <table class="form-table">
+            <tr>
+              <th colspan="4">ASSETS MANAGEMENT DETAILS</th>
+            </tr>
+            <tr>
+              <td>ITP No:</td>
+              <td>Order No:</td>
+              <td>Chief Directorate: <strong class="required">(compulsory field)</strong></td>
+              <td>Sub-Directorate: <strong class="required">(compulsory field)</strong></td>
+            </tr>
+            <tr>
+              <td><input name="itpNumber" type="text" [(ngModel)]="intraRequest.itpNumber" /></td>
+              <td><input name="orderNumber" type="text" [(ngModel)]="intraRequest.orderNumber" /></td>
+              <td><input name="chiefDirectorate" required type="text" [(ngModel)]="intraRequest.chiefDirectorate" /></td>
+              <td><input name="subDirectorate" required type="text" [(ngModel)]="intraRequest.subDirectorate" /></td>
+            </tr>
+          </table>
+
+          <table class="form-table">
+            <tr>
+              <th colspan="4">CLIENT DETAILS</th>
+            </tr>
+            <tr>
+              <td>Objective:</td>
+              <td>Responsibility:</td>
+              <td>Chief User: <strong class="required">(compulsory field)</strong></td>
+              <td>Call Ref:</td>
+            </tr>
+            <tr>
+              <td><input name="objective" type="text" [(ngModel)]="intraRequest.objective" /></td>
+              <td><input name="responsibility" type="text" [(ngModel)]="intraRequest.responsibility" /></td>
+              <td><input name="chiefUser" required type="text" [(ngModel)]="intraRequest.chiefUser" /></td>
+              <td><input name="callReference" type="text" [(ngModel)]="intraRequest.callReference" /></td>
+            </tr>
+          </table>
+
+          <table class="equipment-details-table">
+            <tr>
+              <th colspan="3">AVAILABLE EQUIPMENT DETAILS</th>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td>Serial number</td>
+              <td>Bar code number</td>
+            </tr>
+            <tr>
+              <td>{{ availabilityDetails()?.equipmentDescription || 'Not captured' }}</td>
+              <td>{{ availabilityDetails()?.serialNumber || 'Not captured' }}</td>
+              <td>{{ availabilityDetails()?.barCodeNumber || 'Not captured' }}</td>
+            </tr>
+          </table>
+
+          <table class="form-table location-table">
+            <tr>
+              <th colspan="4">EQUIPMENT LOCATION DETAILS</th>
+            </tr>
+            <tr>
+              <th colspan="2">CURRENT LOCATION</th>
+              <th colspan="2">DESTINATION LOCATION</th>
+            </tr>
+            @for (location of currentLocation; track location.label; let index = $index) {
+              <tr>
+                <td class="label-cell">{{ location.label }}</td>
+                <td>{{ location.value }}</td>
+                <td class="label-cell">{{ destinationFields[index] }}</td>
+                <td>
+                  @switch (index) {
+                    @case (0) {
+                      <input name="destinationOwner" type="text" [(ngModel)]="intraRequest.destinationOwner" />
+                    }
+                    @case (1) {
+                      <input name="destinationBuilding" type="text" [(ngModel)]="intraRequest.destinationBuilding" />
+                    }
+                    @case (2) {
+                      <input name="destinationFloor" type="text" [(ngModel)]="intraRequest.destinationFloor" />
+                    }
+                    @case (3) {
+                      <input name="destinationOffice" type="text" [(ngModel)]="intraRequest.destinationOffice" />
+                    }
+                    @case (4) {
+                      <input name="destinationRegion" type="text" [(ngModel)]="intraRequest.destinationRegion" />
+                    }
+                    @case (5) {
+                      <input name="destinationContact" type="text" [(ngModel)]="intraRequest.destinationContact" />
+                    }
+                  }
+                </td>
+              </tr>
+            }
+            <tr>
+              <td colspan="4" class="reason-heading">Reason for movement and duration: return back to storeroom</td>
+            </tr>
+            <tr>
+              <td colspan="4" rowspan="2">
+                <textarea
+                  name="movementReason"
+                  aria-label="Reason for movement and duration"
+                  [(ngModel)]="intraRequest.movementReason"
+                ></textarea>
+              </td>
+            </tr>
+            <tr></tr>
+          </table>
+
+          <mat-card class="movable-assets-card">
+            <mat-card-content>
+              <h2>MOVEABLE ASSETS: (If moveable asset have not signed equipment won't be removed)</h2>
+
+              <div class="approval-row">
+                <label class="approval-field">
+                  <span>Moveable Asset(Name &amp; Surname):</span>
+                  <mat-form-field appearance="outline">
+                    <input matInput name="movableAssetName" type="text" [(ngModel)]="movableAsset.name" />
+                  </mat-form-field>
+                </label>
+
+                <label class="approval-field">
+                  <span>Date:</span>
+                  <mat-form-field appearance="outline">
+                    <input matInput name="movableAssetDate" type="datetime-local" [(ngModel)]="movableAsset.date" />
+                  </mat-form-field>
+                </label>
+              </div>
+
+              <div class="signature-row">
+                <button
+                  class="signature-preview"
+                  type="button"
+                  aria-label="Upload signature"
+                  [class.dragging]="isDraggingSignature"
+                  (click)="signatureInput.click()"
+                  (dragover)="handleSignatureDragOver($event)"
+                  (dragleave)="handleSignatureDragLeave($event)"
+                  (drop)="handleSignatureDrop($event)"
+                >
+                  <span class="signature-label">Signature</span>
+                  @if (signaturePreviewUrl) {
+                    <img [src]="signaturePreviewUrl" alt="Uploaded signature" />
+                  } @else if (signatureFileName) {
+                    <span class="signature-file">{{ signatureFileName }}</span>
+                  } @else {
+                    <span class="signature-empty">Drop signature image or PDF here</span>
+                  }
+                </button>
+
+                <input
+                  #signatureInput
+                  class="signature-input"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  (change)="uploadSignature($event)"
+                />
+                <button
+                  mat-raised-button
+                  color="primary"
+                  type="button"
+                  [disabled]="isSavingApproval"
+                  (click)="saveApproval()"
+                >
+                  Save approval
+                </button>
+              </div>
+
+              @if (saveMessage()) {
+                <p class="save-message">{{ saveMessage() }}</p>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </section>
+    </form>
+  </section>
+</main>

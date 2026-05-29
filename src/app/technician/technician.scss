@@ -245,6 +245,7 @@ nav {
   }
 }
 
+.available-equipment-panel,
 .process-panel {
   display: grid;
   gap: 12px;
@@ -255,6 +256,28 @@ nav {
 
   h3 {
     margin: 4px 0 0;
+  }
+}
+
+.equipment-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #ffffff;
+
+  th,
+  td {
+    border: 1px solid #cbd8e4;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: #dcebf5;
+    color: #10243c;
+    font-size: 0.78rem;
+    text-transform: uppercase;
   }
 }
 

@@ -76,7 +76,7 @@
               </div>
             </div>
             <div class="availability-actions">
-              <button mat-raised-button color="primary" type="button" (click)="updateAvailability(request.id, 'AVAILABLE')">
+              <button mat-raised-button color="primary" type="button" (click)="openAvailableDialog(request)">
                 Available
               </button>
               <button mat-stroked-button type="button" (click)="updateAvailability(request.id, 'UNAVAILABLE')">

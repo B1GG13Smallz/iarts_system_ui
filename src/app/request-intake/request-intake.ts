@@ -36,6 +36,12 @@ export class RequestIntake {
     responsibility: '',
     chiefUser: '',
     callReference: '',
+    currentOwner: 'IS STOREROOM',
+    currentBuilding: 'CGO',
+    currentFloor: '4TH',
+    currentOffice: '441',
+    currentRegion: 'HEAD OFFICE',
+    currentContact: '012 406 1724',
     destinationOwner: '',
     destinationBuilding: '',
     destinationFloor: '',
@@ -65,7 +71,9 @@ export class RequestIntake {
   }
 
   protected proceedToIntraForm(): void {
-    this.showIntraForm = true;
+    queueMicrotask(() => {
+      this.showIntraForm = true;
+    });
   }
 
   protected updateReferenceNumber(value: string): void {
@@ -85,6 +93,7 @@ export class RequestIntake {
     const cleanReference = this.intraRequest.callReference.trim() || this.referenceNumber.trim();
     this.updateReferenceNumber(cleanReference);
     this.intraRequest.referenceNumber = cleanReference;
+    this.applyCurrentLocationDetails();
 
     if (!this.intraRequest.referenceNumber || !this.intraRequest.chiefDirectorate.trim() || !this.intraRequest.subDirectorate.trim() || !this.intraRequest.chiefUser.trim()) {
       this.saveMessage = 'Complete the reference number, Chief Directorate, Sub-Directorate and Chief User fields.';
@@ -121,4 +130,13 @@ export class RequestIntake {
     { label: 'Region:', value: 'HEAD OFFICE' },
     { label: 'Contact:', value: '012 406 1724' },
   ];
+
+  private applyCurrentLocationDetails(): void {
+    this.intraRequest.currentOwner = this.currentLocation[0].value;
+    this.intraRequest.currentBuilding = this.currentLocation[1].value;
+    this.intraRequest.currentFloor = this.currentLocation[2].value;
+    this.intraRequest.currentOffice = this.currentLocation[3].value;
+    this.intraRequest.currentRegion = this.currentLocation[4].value;
+    this.intraRequest.currentContact = this.currentLocation[5].value;
+  }
 }

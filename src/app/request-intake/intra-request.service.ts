@@ -13,6 +13,12 @@ export interface IntraRequestPayload {
   responsibility: string;
   chiefUser: string;
   callReference: string;
+  currentOwner: string;
+  currentBuilding: string;
+  currentFloor: string;
+  currentOffice: string;
+  currentRegion: string;
+  currentContact: string;
   destinationOwner: string;
   destinationBuilding: string;
   destinationFloor: string;
@@ -33,7 +39,7 @@ export interface IntraRequestRecord extends IntraRequestPayload {
   providedIn: 'root',
 })
 export class IntraRequestService {
-  private readonly apiUrl = 'http://localhost:8080/api/intra-requests';
+  private readonly apiUrl = '/api/intra-requests';
 
   constructor(
     private readonly authService: AuthService,
@@ -46,6 +52,10 @@ export class IntraRequestService {
 
   findMine(): Observable<IntraRequestRecord[]> {
     return this.http.get<IntraRequestRecord[]>(`${this.apiUrl}/mine`, { headers: this.authHeaders() });
+  }
+
+  findAll(): Observable<IntraRequestRecord[]> {
+    return this.http.get<IntraRequestRecord[]>(this.apiUrl, { headers: this.authHeaders() });
   }
 
   private authHeaders(): HttpHeaders {

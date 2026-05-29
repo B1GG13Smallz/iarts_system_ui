@@ -44,12 +44,7 @@ export class Login {
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {
-          const route = response.roles.includes('ADMIN')
-            ? '/dashboard'
-            : response.roles.includes('TECHNICIAN')
-              ? '/technician'
-              : '/requests';
-          this.router.navigateByUrl(route);
+          this.router.navigateByUrl(this.authService.routeForSession(response));
         },
         error: () => this.loginError.set('Sign in failed. Check your username and password.'),
       });

@@ -1,0 +1,52 @@
+<mat-card class="equipment-dialog-card">
+  <mat-card-header>
+    <mat-card-title>Available equipment details</mat-card-title>
+    <mat-card-subtitle>
+      {{ data.referenceNumber }} · {{ data.equipment }}
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form class="equipment-dialog-form" #equipmentForm="ngForm" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Serial number</mat-label>
+        <input
+          matInput
+          required
+          name="serialNumber"
+          [(ngModel)]="form.serialNumber"
+          autocomplete="off"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Bar code number</mat-label>
+        <input
+          matInput
+          required
+          name="barCodeNumber"
+          [(ngModel)]="form.barCodeNumber"
+          autocomplete="off"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          required
+          rows="5"
+          name="description"
+          [(ngModel)]="form.description"
+        ></textarea>
+      </mat-form-field>
+
+      <mat-card-actions align="end">
+        <button mat-button mat-dialog-close type="button">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="equipmentForm.invalid">
+          Confirm available
+        </button>
+      </mat-card-actions>
+    </form>
+  </mat-card-content>
+</mat-card>
