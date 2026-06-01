@@ -140,6 +140,23 @@ nav {
   padding: 28px;
 }
 
+.embedded-assets-approval {
+  display: block;
+
+  ::ng-deep .assets-shell {
+    display: block;
+    min-height: 0;
+  }
+
+  ::ng-deep .assets-shell > .sidebar {
+    display: none;
+  }
+
+  ::ng-deep .assets-shell > .workspace {
+    padding: 0;
+  }
+}
+
 .topbar,
 .panel-heading,
 .topbar-actions {
@@ -180,9 +197,7 @@ nav {
 
 .stat-card,
 .panel,
-.availability-panel,
-.hero-panel,
-.role-switcher button {
+.availability-panel {
   border: 1px solid #d7e0ea;
   border-radius: 8px;
   background: #ffffff;
@@ -264,34 +279,6 @@ nav {
   font-weight: 700;
 }
 
-.hero-panel {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.85fr) minmax(320px, 1.15fr);
-  gap: 22px;
-  margin-bottom: 18px;
-  padding: 24px;
-  background:
-    linear-gradient(135deg, rgba(56, 189, 248, 0.12), transparent 42%),
-    #ffffff;
-}
-
-.hero-copy {
-  h2 {
-    margin: 16px 0 10px;
-    max-width: 620px;
-    font-size: clamp(1.6rem, 2.5vw, 2.25rem);
-    line-height: 1.08;
-  }
-
-  p {
-    margin: 0;
-    max-width: 680px;
-    color: #52687f;
-    line-height: 1.55;
-  }
-}
-
-.status-pill,
 .material-chip {
   display: inline-flex;
   width: max-content;
@@ -301,71 +288,6 @@ nav {
   color: #075985;
   font-size: 0.78rem;
   font-weight: 800;
-}
-
-.workflow {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.workflow-step {
-  border: 1px solid #dce6ef;
-  border-radius: 8px;
-  padding: 14px;
-  background: #f8fbfd;
-
-  span,
-  small {
-    display: block;
-    color: #637b92;
-    font-size: 0.78rem;
-  }
-
-  strong {
-    display: block;
-    margin: 8px 0;
-  }
-
-  &.active {
-    border-color: #38bdf8;
-    background: #e8f8ff;
-  }
-
-  &.complete {
-    border-color: #86efac;
-    background: #ecfdf3;
-  }
-}
-
-.role-switcher {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-
-  button {
-    padding: 14px;
-    text-align: left;
-    color: #334a62;
-  }
-
-  button.selected {
-    border-color: #1d6fa5;
-    background: #eef9ff;
-  }
-
-  strong,
-  span {
-    display: block;
-  }
-
-  span {
-    margin-top: 6px;
-    color: #65798e;
-    font-size: 0.82rem;
-    line-height: 1.4;
-  }
 }
 
 .grid {
@@ -513,6 +435,14 @@ nav {
     padding: 12px 10px;
   }
 
+  small {
+    display: block;
+    margin-top: 4px;
+    color: #6b7f92;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
   em {
     color: #075985;
     font-style: normal;
@@ -527,6 +457,26 @@ nav {
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.queue-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+
+  > span {
+    color: #607894;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
 .approval-list div {
@@ -600,12 +550,10 @@ nav {
 
 @media (max-width: 1180px) {
   .stats,
-  .availability-admin-grid,
-  .role-switcher {
+  .availability-admin-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .hero-panel,
   .grid {
     grid-template-columns: 1fr;
   }
@@ -635,9 +583,7 @@ nav {
     flex-direction: column;
   }
 
-  .stats,
-  .role-switcher,
-  .workflow {
+  .stats {
     grid-template-columns: 1fr;
   }
 }

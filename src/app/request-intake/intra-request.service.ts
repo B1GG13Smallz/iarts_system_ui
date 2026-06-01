@@ -26,6 +26,10 @@ export interface IntraRequestPayload {
   destinationRegion: string;
   destinationContact: string;
   movementReason: string;
+  destinationSignatureDate?: string;
+  destinationSignatureFileName?: string;
+  destinationSignatureContentType?: string;
+  destinationSignatureBase64?: string;
 }
 
 export interface IntraRequestRecord extends IntraRequestPayload {
@@ -33,6 +37,11 @@ export interface IntraRequestRecord extends IntraRequestPayload {
   status: string;
   createdAt: string;
   updatedAt: string;
+  destinationSignatureCaptured?: boolean;
+  assetApprovalDate?: string;
+  assetApprovalSignatureFileName?: string;
+  assetApprovalSignatureContentType?: string;
+  assetApprovalSignatureCaptured?: boolean;
 }
 
 @Injectable({

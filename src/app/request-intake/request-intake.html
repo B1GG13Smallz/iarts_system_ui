@@ -12,8 +12,12 @@
       @if (isAdmin()) {
         <a routerLink="/dashboard">Dashboard</a>
       } @else {
-        <a routerLink="/requests" class="active">Request</a>
+        <button type="button" [class.active]="activeView() === 'request'" (click)="showRequest()">Request</button>
         <a routerLink="/request-status">Request status</a>
+        <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
+        <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
+          View assets approval form
+        </button>
       }
     </nav>
 
@@ -30,6 +34,11 @@
   </aside>
 
   <section class="workspace">
+    @if (activeView() === 'assetsApproval') {
+      <section class="embedded-assets-approval">
+        <app-assets-approval />
+      </section>
+    } @else {
     <header class="page-header">
       <div>
         <span class="eyebrow">Request intake</span>
@@ -42,7 +51,10 @@
           type="text"
           [ngModel]="referenceNumber"
           (ngModelChange)="updateReferenceNumber($event)"
-          placeholder="Enter reference number"
+          pattern="^(SR|IR|sr|ir)[0-9]{6}$"
+          maxlength="8"
+          placeholder="SR123456 or IR123456"
+          title="Reference number must start with SR or IR followed by 6 digits."
         />
       </label>
     </header>
@@ -165,6 +177,51 @@
                 </td>
               </tr>
               <tr></tr>
+              <tr>
+                <td class="label-cell">Destination signature:</td>
+                <td colspan="3">
+                  <button
+                    class="signature-dropzone"
+                    type="button"
+                    aria-label="Upload destination signature"
+                    [class.dragging]="isDraggingDestinationSignature"
+                    (click)="destinationSignatureInput.click()"
+                    (dragover)="handleDestinationSignatureDragOver($event)"
+                    (dragleave)="handleDestinationSignatureDragLeave($event)"
+                    (drop)="handleDestinationSignatureDrop($event)"
+                  >
+                    @if (destinationSignaturePreviewUrl) {
+                      <img [src]="destinationSignaturePreviewUrl" alt="Destination signature preview" />
+                    } @else if (destinationSignatureFileName) {
+                      <span class="signature-file">{{ destinationSignatureFileName }}</span>
+                    } @else {
+                      <span class="signature-empty">Drop signature image or PDF here</span>
+                    }
+                  </button>
+                  <input
+                    #destinationSignatureInput
+                    class="signature-input"
+                    type="file"
+                    accept="image/*,application/pdf"
+                    (change)="uploadDestinationSignature($event)"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="label-cell">Date:</td>
+                <td colspan="3">
+                  <mat-form-field class="signature-date-field" appearance="outline">
+                    <input
+                      matInput
+                      name="destinationSignatureDate"
+                      [matDatepicker]="destinationSignatureDatePicker"
+                      [(ngModel)]="destinationSignatureDate"
+                    />
+                    <mat-datepicker-toggle matIconSuffix [for]="destinationSignatureDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #destinationSignatureDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </td>
+              </tr>
             </table>
             @if (saveMessage) {
               <p class="save-message">{{ saveMessage }}</p>
@@ -179,6 +236,7 @@
         </mat-step>
       </mat-stepper>
       </form>
+    }
     }
   </section>
 </main>

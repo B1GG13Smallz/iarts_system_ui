@@ -1,18 +1,20 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
+import { AssetsApproval } from '../assets-approval/assets-approval';
 import { AuthService, AuthSession } from '../auth/auth';
 import { TechnicianRequestDetails, TechnicianRequestStatus, TechnicianService } from './technician.service';
 
 @Component({
   selector: 'app-technician',
-  imports: [FormsModule, MatButtonModule, RouterLink],
+  imports: [AssetsApproval, FormsModule, MatButtonModule],
   templateUrl: './technician.html',
   styleUrl: './technician.scss',
 })
 export class Technician {
+  protected readonly activeView = signal<'technician' | 'assetsApproval'>('technician');
   protected referenceNumber = '';
   protected readonly result = signal<TechnicianRequestDetails | null>(null);
   protected readonly message = signal('');
@@ -33,6 +35,14 @@ export class Technician {
 
   protected session(): AuthSession | null {
     return this.authService.currentSession();
+  }
+
+  protected showTechnician(): void {
+    this.activeView.set('technician');
+  }
+
+  protected showAssetsApproval(): void {
+    this.activeView.set('assetsApproval');
   }
 
   protected search(): void {

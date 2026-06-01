@@ -64,13 +64,19 @@ nav {
   display: grid;
   gap: 8px;
 
+  button,
   a {
+    border: 0;
     border-radius: 8px;
     padding: 12px 14px;
+    background: transparent;
     color: #dce8f4;
+    text-align: left;
     text-decoration: none;
   }
 
+  button.active,
+  button:hover,
   a.active,
   a:hover {
     background: #173b60;
@@ -126,6 +132,23 @@ nav {
 .workspace {
   min-width: 0;
   padding: 28px;
+}
+
+.embedded-assets-approval {
+  display: block;
+
+  ::ng-deep .assets-shell {
+    display: block;
+    min-height: 0;
+  }
+
+  ::ng-deep .assets-shell > .sidebar {
+    display: none;
+  }
+
+  ::ng-deep .assets-shell > .workspace {
+    padding: 0;
+  }
 }
 
 .page-header {

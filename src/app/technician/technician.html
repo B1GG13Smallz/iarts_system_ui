@@ -9,7 +9,10 @@
     </div>
 
     <nav>
-      <a routerLink="/technician" class="active">Technician</a>
+      <button type="button" [class.active]="activeView() === 'technician'" (click)="showTechnician()">Technician</button>
+      <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
+        View assets approval form
+      </button>
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">
@@ -25,6 +28,11 @@
   </aside>
 
   <section class="workspace">
+    @if (activeView() === 'assetsApproval') {
+      <section class="embedded-assets-approval">
+        <app-assets-approval />
+      </section>
+    } @else {
     <header class="page-header">
       <div>
         <span class="eyebrow">Technician</span>
@@ -164,6 +172,7 @@
           }
         </section>
       </section>
+    }
     }
   </section>
 </main>

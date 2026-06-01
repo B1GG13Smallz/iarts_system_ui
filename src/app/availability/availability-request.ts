@@ -10,6 +10,7 @@ import { AvailabilityRequestService } from './availability-request.service';
   styleUrl: './availability-request.scss',
 })
 export class AvailabilityRequest {
+  private readonly referenceNumberPattern = /^(SR|IR)\d{6}$/i;
   @Input() referenceNumber = '';
 
   protected equipment = '';
@@ -23,6 +24,11 @@ export class AvailabilityRequest {
 
     if (!cleanReference || !cleanEquipment) {
       this.message.set('Enter a reference number and equipment name before sending.');
+      return;
+    }
+
+    if (!this.referenceNumberPattern.test(cleanReference)) {
+      this.message.set('Reference number must start with SR or IR followed by 6 digits, for example SR123456.');
       return;
     }
 

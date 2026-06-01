@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AssetsApproval } from './assets-approval/assets-approval';
 import { Dashboard } from './dashboard/dashboard';
+import { LaptopPolicyAcceptance } from './laptop-policy-acceptance/laptop-policy-acceptance';
 import { Login } from './login/login';
 import { RequestIntake } from './request-intake/request-intake';
 import { RequestStatusPage } from './request-status/request-status-page';
@@ -12,6 +13,7 @@ export const routes: Routes = [
   { path: 'assets-approval', component: AssetsApproval },
   { path: 'requests', component: RequestIntake },
   { path: 'request-status', component: RequestStatusPage },
+  { path: 'laptop-policy-acceptance', component: LaptopPolicyAcceptance },
   { path: 'technician', component: Technician },
   { path: '', pathMatch: 'full', redirectTo: 'login' },
   { path: '**', redirectTo: 'login' },

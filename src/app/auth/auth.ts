@@ -31,7 +31,7 @@ export class AuthService {
   }
 
   currentSession(): AuthSession | null {
-    const session = localStorage.getItem(this.storageKey);
+    const session = sessionStorage.getItem(this.storageKey);
 
     if (!session) {
       return null;
@@ -40,7 +40,7 @@ export class AuthService {
     try {
       return JSON.parse(session) as AuthSession;
     } catch {
-      localStorage.removeItem(this.storageKey);
+      sessionStorage.removeItem(this.storageKey);
       return null;
     }
   }
@@ -78,11 +78,11 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.storageKey);
+    sessionStorage.removeItem(this.storageKey);
   }
 
   private storeSession(response: AuthResponse): void {
-    localStorage.setItem(
+    sessionStorage.setItem(
       this.storageKey,
       JSON.stringify({
         token: response.token,

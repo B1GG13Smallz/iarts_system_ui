@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService, AuthSession } from '../auth/auth';
@@ -10,14 +12,24 @@ import { AssetsApprovalService } from './assets-approval.service';
 import { IntraRequestPayload, IntraRequestRecord, IntraRequestService } from '../request-intake/intra-request.service';
 import { TechnicianRequestDetails, TechnicianService } from '../technician/technician.service';
 
+interface SignatureUploadState {
+  fileName: string;
+  previewUrl: string;
+  contentType: string;
+  base64: string;
+  isDragging: boolean;
+}
+
 @Component({
   selector: 'app-assets-approval',
   imports: [
     FormsModule,
     MatButtonModule,
     MatCardModule,
+    MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatNativeDateModule,
     RouterLink,
   ],
   templateUrl: './assets-approval.html',
@@ -35,9 +47,13 @@ export class AssetsApproval implements OnInit, OnDestroy {
   protected signatureBase64 = '';
   protected isDraggingSignature = false;
   protected isSavingApproval = false;
+  protected technicianName = '';
+  protected readonly clientCurrentSignature = this.createSignatureState();
+  protected readonly clientDestinationSignature = this.createSignatureState();
+  protected readonly technicianSignature = this.createSignatureState();
   protected readonly movableAsset = {
     name: '',
-    date: '',
+    date: null as Date | null,
   };
   protected readonly intraRequest: IntraRequestPayload = {
     referenceNumber: '',
@@ -96,6 +112,9 @@ export class AssetsApproval implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearSignaturePreview();
+    this.clearAdditionalSignaturePreview(this.clientCurrentSignature);
+    this.clearAdditionalSignaturePreview(this.clientDestinationSignature);
+    this.clearAdditionalSignaturePreview(this.technicianSignature);
   }
 
   protected session(): AuthSession | null {
@@ -144,9 +163,34 @@ export class AssetsApproval implements OnInit, OnDestroy {
     this.readSignatureFile(event.dataTransfer?.files?.[0]);
   }
 
+  protected uploadAdditionalSignature(signature: SignatureUploadState, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    this.readAdditionalSignatureFile(signature, file);
+    input.value = '';
+  }
+
+  protected handleAdditionalSignatureDragOver(signature: SignatureUploadState, event: DragEvent): void {
+    event.preventDefault();
+    signature.isDragging = true;
+  }
+
+  protected handleAdditionalSignatureDragLeave(signature: SignatureUploadState, event: DragEvent): void {
+    event.preventDefault();
+    signature.isDragging = false;
+  }
+
+  protected handleAdditionalSignatureDrop(signature: SignatureUploadState, event: DragEvent): void {
+    event.preventDefault();
+    signature.isDragging = false;
+    this.readAdditionalSignatureFile(signature, event.dataTransfer?.files?.[0]);
+  }
+
   protected saveApproval(): void {
     const requestId = this.selectedRequestId();
     const movableAssetName = this.movableAsset.name.trim();
+    const approvalDate = this.formatApprovalDate(this.movableAsset.date);
 
     this.saveMessage.set('');
 
@@ -155,7 +199,7 @@ export class AssetsApproval implements OnInit, OnDestroy {
       return;
     }
 
-    if (!movableAssetName || !this.movableAsset.date) {
+    if (!movableAssetName || !approvalDate) {
       this.saveMessage.set('Moveable asset name and date are required.');
       return;
     }
@@ -169,7 +213,7 @@ export class AssetsApproval implements OnInit, OnDestroy {
     this.assetsApprovalService.save({
       requestId,
       movableAssetName,
-      approvalDate: this.movableAsset.date,
+      approvalDate,
       signatureFileName: this.signatureFileName,
       signatureContentType: this.signatureContentType,
       signatureBase64: this.signatureBase64,
@@ -279,10 +323,68 @@ export class AssetsApproval implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
+  private readAdditionalSignatureFile(signature: SignatureUploadState, file: File | undefined): void {
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+      this.saveMessage.set('Upload a signature image or PDF file.');
+      return;
+    }
+
+    signature.fileName = file.name;
+    signature.contentType = file.type;
+    signature.base64 = '';
+    this.saveMessage.set('');
+    this.clearAdditionalSignaturePreview(signature);
+    signature.previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : '';
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      signature.base64 = result.includes(',') ? result.split(',')[1] : result;
+    };
+    reader.onerror = () => {
+      signature.base64 = '';
+      this.saveMessage.set('Could not read the signature file.');
+    };
+    reader.readAsDataURL(file);
+  }
+
   private clearSignaturePreview(): void {
     if (this.signaturePreviewUrl) {
       URL.revokeObjectURL(this.signaturePreviewUrl);
       this.signaturePreviewUrl = '';
     }
+  }
+
+  private clearAdditionalSignaturePreview(signature: SignatureUploadState): void {
+    if (signature.previewUrl) {
+      URL.revokeObjectURL(signature.previewUrl);
+      signature.previewUrl = '';
+    }
+  }
+
+  private createSignatureState(): SignatureUploadState {
+    return {
+      fileName: '',
+      previewUrl: '',
+      contentType: '',
+      base64: '',
+      isDragging: false,
+    };
+  }
+
+  private formatApprovalDate(date: Date | null): string {
+    if (!date) {
+      return '';
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 }

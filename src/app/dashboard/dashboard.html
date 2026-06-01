@@ -10,7 +10,10 @@
 
     <nav>
       @if (isAdmin()) {
-        <a routerLink="/dashboard" class="active">Dashboard</a>
+        <button type="button" [class.active]="activeView() === 'dashboard'" (click)="showDashboard()">Dashboard</button>
+        <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
+          View assets approval form
+        </button>
       } @else {
         <a routerLink="/requests">Request</a>
       }
@@ -29,18 +32,23 @@
   </aside>
 
   <section class="workspace">
-    <header class="topbar">
-      <div>
-        <span class="eyebrow">Department of Public Works</span>
-        <h1>Integrated ICT asset operations</h1>
-      </div>
-      <div class="topbar-actions">
-        <button mat-stroked-button type="button" class="ghost">Export audit</button>
-        <button mat-raised-button routerLink="/requests" type="button" class="primary">New request</button>
-      </div>
-    </header>
+    @if (activeView() === 'assetsApproval') {
+      <section class="embedded-assets-approval">
+        <app-assets-approval />
+      </section>
+    } @else {
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">Department of Public Works</span>
+          <h1>Integrated ICT asset operations</h1>
+        </div>
+        <div class="topbar-actions">
+          <button mat-stroked-button type="button" class="ghost">Export audit</button>
+          <button mat-raised-button routerLink="/requests" type="button" class="primary">New request</button>
+        </div>
+      </header>
 
-    <section class="stats" aria-label="Operational summary">
+      <section class="stats" aria-label="Operational summary">
       @for (stat of stats; track stat.label) {
         <article class="stat-card">
           <span>{{ stat.label }}</span>
@@ -48,9 +56,9 @@
           <small>{{ stat.trend }}</small>
         </article>
       }
-    </section>
+      </section>
 
-    <section class="availability-panel" aria-labelledby="availability-admin-title">
+      <section class="availability-panel" aria-labelledby="availability-admin-title">
       <div class="panel-heading">
         <div>
           <span class="eyebrow">Admin confirmation</span>
@@ -58,8 +66,8 @@
         </div>
       </div>
 
-      @if (availabilityService.requests().length) {
-        @for (request of availabilityService.requests(); track request.id) {
+      @if (pendingAvailabilityRequests().length) {
+        @for (request of pendingAvailabilityRequests(); track request.id) {
           <div class="availability-admin-item">
             <div class="availability-admin-grid">
               <div>
@@ -88,43 +96,66 @@
       } @else {
         <p class="empty-state">No equipment availability requests waiting for confirmation.</p>
       }
-    </section>
+      </section>
 
-    <section class="hero-panel">
-      <div class="hero-copy">
-        <mat-chip class="status-pill">Active workflow: {{ activeModule() }}</mat-chip>
-        <h2>Control every asset decision from request to issue.</h2>
-        <p>
-          IARTS routes printer requests to QTS, verifies stock before allocation, records
-          take-home approvals, captures laptop policy acceptance and preserves an audit trail.
-        </p>
-      </div>
-      <div class="workflow" aria-label="Request workflow">
-        @for (step of workflow; track step.label) {
-          <div class="workflow-step" [class]="step.status.toLowerCase()">
-            <span>{{ step.status }}</span>
-            <strong>{{ step.label }}</strong>
-            <small>{{ step.owner }}</small>
+      <section class="grid">
+      <article class="panel wide">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">Processing queue</span>
+            <h2>Requests requiring action</h2>
           </div>
-        }
-      </div>
-    </section>
+          <button mat-stroked-button type="button" class="ghost compact">View all</button>
+        </div>
 
-    <section class="role-switcher" aria-label="Role views">
-      @for (role of roles; track role.key) {
-        <button
-          mat-button
-          type="button"
-          [class.selected]="activeRole() === role.key"
-          (click)="setRole(role.key)"
-        >
-          <strong>{{ role.title }}</strong>
-          <span>{{ role.summary }}</span>
-        </button>
-      }
-    </section>
+        <div class="table" role="table" aria-label="Requests requiring action">
+          <div class="table-row table-head" role="row">
+            <span role="columnheader">Reference</span>
+            <span role="columnheader">Requester</span>
+            <span role="columnheader">Equipment</span>
+            <span role="columnheader">Status</span>
+            <span role="columnheader">Decision date</span>
+          </div>
+          @for (request of pagedProcessingQueue(); track request.id) {
+            <div class="table-row" role="row">
+              <strong role="cell">{{ request.referenceNumber }}</strong>
+              <span role="cell">{{ request.requester }}</span>
+              <span role="cell">{{ request.equipment }}</span>
+              <span role="cell">{{ request.status }}</span>
+              <span role="cell">{{ formatDate(request.decisionDate) }}</span>
+            </div>
+          } @empty {
+            <div class="table-row" role="row">
+              <span role="cell">No processed equipment requests found.</span>
+            </div>
+          }
+        </div>
 
-    <section class="grid">
+        <div class="queue-pagination">
+          <span>{{ processingQueueRange() }}</span>
+          <div>
+            <button
+              mat-stroked-button
+              type="button"
+              class="ghost compact"
+              [disabled]="processingQueuePage() === 0"
+              (click)="previousProcessingQueuePage()"
+            >
+              Previous
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              class="ghost compact"
+              [disabled]="!canViewMoreProcessingQueue()"
+              (click)="viewMoreProcessingQueue()"
+            >
+              View more
+            </button>
+          </div>
+        </div>
+      </article>
+
       <article class="panel request-panel">
         <div class="panel-heading">
           <div>
@@ -175,35 +206,6 @@
               <em [class.low]="item.threshold === 'Low'" [class.watch]="item.threshold === 'Watch'">
                 {{ item.threshold }}
               </em>
-            </div>
-          }
-        </div>
-      </article>
-
-      <article class="panel wide">
-        <div class="panel-heading">
-          <div>
-            <span class="eyebrow">Processing queue</span>
-            <h2>Requests requiring action</h2>
-          </div>
-          <button mat-stroked-button type="button" class="ghost compact">View all</button>
-        </div>
-
-        <div class="table" role="table" aria-label="Requests requiring action">
-          <div class="table-row table-head" role="row">
-            <span role="columnheader">Reference</span>
-            <span role="columnheader">Requester</span>
-            <span role="columnheader">Asset</span>
-            <span role="columnheader">Status</span>
-            <span role="columnheader">Priority</span>
-          </div>
-          @for (request of requests; track request.id) {
-            <div class="table-row" role="row">
-              <strong role="cell">{{ request.id }}</strong>
-              <span role="cell">{{ request.requester }}</span>
-              <span role="cell">{{ request.asset }}</span>
-              <span role="cell">{{ request.status }}</span>
-              <em role="cell">{{ request.priority }}</em>
             </div>
           }
         </div>
@@ -268,6 +270,7 @@
           }
         </ol>
       </article>
-    </section>
+      </section>
+    }
   </section>
 </main>

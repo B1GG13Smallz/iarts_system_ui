@@ -88,7 +88,7 @@
 
           <table class="equipment-details-table">
             <tr>
-              <th colspan="3">AVAILABLE EQUIPMENT DETAILS</th>
+              <th colspan="3">DESCRIPTION OF EQUIPMENT</th>
             </tr>
             <tr>
               <td>Description</td>
@@ -169,7 +169,14 @@
                 <label class="approval-field">
                   <span>Date:</span>
                   <mat-form-field appearance="outline">
-                    <input matInput name="movableAssetDate" type="datetime-local" [(ngModel)]="movableAsset.date" />
+                    <input
+                      matInput
+                      name="movableAssetDate"
+                      [matDatepicker]="movableAssetDatePicker"
+                      [(ngModel)]="movableAsset.date"
+                    />
+                    <mat-datepicker-toggle matIconSuffix [for]="movableAssetDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #movableAssetDatePicker></mat-datepicker>
                   </mat-form-field>
                 </label>
               </div>
@@ -202,15 +209,6 @@
                   accept="image/*,application/pdf"
                   (change)="uploadSignature($event)"
                 />
-                <button
-                  mat-raised-button
-                  color="primary"
-                  type="button"
-                  [disabled]="isSavingApproval"
-                  (click)="saveApproval()"
-                >
-                  Save approval
-                </button>
               </div>
 
               @if (saveMessage()) {
@@ -218,6 +216,126 @@
               }
             </mat-card-content>
           </mat-card>
+
+          <div class="approval-card-grid">
+            <mat-card class="secondary-approval-card">
+              <mat-card-content>
+                <h2>CLIENT (Official currently using equipment)</h2>
+
+                <div class="stacked-signature-fields">
+                  <label class="signature-field">
+                    <span>Current Signature</span>
+                    <button
+                      class="signature-preview compact"
+                      type="button"
+                      aria-label="Upload current client signature"
+                      [class.dragging]="clientCurrentSignature.isDragging"
+                      (click)="clientCurrentSignatureInput.click()"
+                      (dragover)="handleAdditionalSignatureDragOver(clientCurrentSignature, $event)"
+                      (dragleave)="handleAdditionalSignatureDragLeave(clientCurrentSignature, $event)"
+                      (drop)="handleAdditionalSignatureDrop(clientCurrentSignature, $event)"
+                    >
+                      @if (clientCurrentSignature.previewUrl) {
+                        <img [src]="clientCurrentSignature.previewUrl" alt="Current client signature" />
+                      } @else if (clientCurrentSignature.fileName) {
+                        <span class="signature-file">{{ clientCurrentSignature.fileName }}</span>
+                      } @else {
+                        <span class="signature-empty">Drop signature image or PDF here</span>
+                      }
+                    </button>
+                    <input
+                      #clientCurrentSignatureInput
+                      class="signature-input"
+                      type="file"
+                      accept="image/*,application/pdf"
+                      (change)="uploadAdditionalSignature(clientCurrentSignature, $event)"
+                    />
+                  </label>
+
+                  <label class="signature-field">
+                    <span>Destination Signature</span>
+                    <button
+                      class="signature-preview compact"
+                      type="button"
+                      aria-label="Upload destination client signature"
+                      [class.dragging]="clientDestinationSignature.isDragging"
+                      (click)="clientDestinationSignatureInput.click()"
+                      (dragover)="handleAdditionalSignatureDragOver(clientDestinationSignature, $event)"
+                      (dragleave)="handleAdditionalSignatureDragLeave(clientDestinationSignature, $event)"
+                      (drop)="handleAdditionalSignatureDrop(clientDestinationSignature, $event)"
+                    >
+                      @if (clientDestinationSignature.previewUrl) {
+                        <img [src]="clientDestinationSignature.previewUrl" alt="Destination client signature" />
+                      } @else if (clientDestinationSignature.fileName) {
+                        <span class="signature-file">{{ clientDestinationSignature.fileName }}</span>
+                      } @else {
+                        <span class="signature-empty">Drop signature image or PDF here</span>
+                      }
+                    </button>
+                    <input
+                      #clientDestinationSignatureInput
+                      class="signature-input"
+                      type="file"
+                      accept="image/*,application/pdf"
+                      (change)="uploadAdditionalSignature(clientDestinationSignature, $event)"
+                    />
+                  </label>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="secondary-approval-card">
+              <mat-card-content>
+                <h2>IT TECHNICIAN:</h2>
+
+                <label class="technician-line-field">
+                  <span>Name:</span>
+                  <input matInput name="technicianName" type="text" [(ngModel)]="technicianName" />
+                </label>
+
+                <label class="signature-field">
+                  <span>Signature:</span>
+                  <button
+                    class="signature-preview compact"
+                    type="button"
+                    aria-label="Upload technician signature"
+                    [class.dragging]="technicianSignature.isDragging"
+                    (click)="technicianSignatureInput.click()"
+                    (dragover)="handleAdditionalSignatureDragOver(technicianSignature, $event)"
+                    (dragleave)="handleAdditionalSignatureDragLeave(technicianSignature, $event)"
+                    (drop)="handleAdditionalSignatureDrop(technicianSignature, $event)"
+                  >
+                    @if (technicianSignature.previewUrl) {
+                      <img [src]="technicianSignature.previewUrl" alt="Technician signature" />
+                    } @else if (technicianSignature.fileName) {
+                      <span class="signature-file">{{ technicianSignature.fileName }}</span>
+                    } @else {
+                      <span class="signature-empty">Drop signature image or PDF here</span>
+                    }
+                  </button>
+                  <input
+                    #technicianSignatureInput
+                    class="signature-input"
+                    type="file"
+                    accept="image/*,application/pdf"
+                    (change)="uploadAdditionalSignature(technicianSignature, $event)"
+                  />
+                </label>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <footer class="approval-footer">
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              [disabled]="isSavingApproval"
+              (click)="saveApproval()"
+            >
+              Save approval
+            </button>
+          </footer>
         </div>
       </section>
     </form>

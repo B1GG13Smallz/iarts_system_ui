@@ -1,0 +1,200 @@
+<main class="policy-shell">
+  <aside class="sidebar" aria-label="IARTS laptop policy navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/requests">Request</a>
+      <a routerLink="/request-status">Request status</a>
+      <a routerLink="/laptop-policy-acceptance" class="active">Laptop policy acceptance form</a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <header class="page-header">
+      <img src="/DPWI_logo.jpg" alt="DPWI logo" />
+    </header>
+
+    <form class="policy-form">
+      <section class="form-panel">
+        <h1>LAPTOP POLICY ACCEPTANCE FORM</h1>
+        <div class="bold-line" aria-hidden="true"></div>
+
+        <div class="policy-copy">
+          <p>
+            I understand that all laptops, equipment, and/or accessories provided to me by the Information
+            Services(Chief Directorate ar the property of the National Department onf Public Works. I agree to all the
+            terms of the NDPW Notebook Policy and Staff Laptop Use Manual. I agree to return the equipment to the IS
+            Chief Directorate in the same condition which it was provided to me, fair wear and teat expected.
+          </p>
+          <p>
+            I understand that I am personolly liable for any damage to or loss of any laptop and/or related equipment
+            and accesories depending on the circumstances. In case of damage or loss, I agree to replace or pay the full
+            cost of replacement of the damaged or lost equipment with equipment of equal value and functionality
+            subjected to the approval of the IS Chief Directorate.
+          </p>
+          <p>
+            I agree no to install any additional software or change the configuration of the equipment in any way
+            without prior consultation with Directorate: IT Support. I will not allow any aunauthorizec individuals to
+            use any laptop and/or related equipment and accesories that have be provided to me by IS.
+          </p>
+          <p>
+            I understand that violation of the terms and conditions set out in the NDPW Notebook policy and User Manual
+            will result in the restriction and/or termination of my use of the Department's laptop; and accesories and
+            may result in further disciplinary action and/or other legal action.
+          </p>
+        </div>
+
+        <div class="bold-line" aria-hidden="true"></div>
+
+        <table class="acceptance-table">
+          <tr>
+            <td>
+              <label>
+                <span>Full Names</span>
+                <mat-form-field appearance="outline">
+                  <input matInput name="fullNames" type="text" [(ngModel)]="acceptance.fullNames" />
+                </mat-form-field>
+              </label>
+            </td>
+            <td>
+              <label>
+                <span>PERSAL NUMBER</span>
+                <mat-form-field appearance="outline">
+                  <input matInput name="persalNumber" type="text" [(ngModel)]="acceptance.persalNumber" />
+                </mat-form-field>
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label>
+                <span>SIGNATURE</span>
+                <button
+                  class="signature-dropzone"
+                  type="button"
+                  aria-label="Upload signature"
+                  [class.dragging]="isDraggingSignature"
+                  (click)="signatureInput.click()"
+                  (dragover)="handleSignatureDragOver($event)"
+                  (dragleave)="handleSignatureDragLeave($event)"
+                  (drop)="handleSignatureDrop($event)"
+                >
+                  @if (signaturePreviewUrl) {
+                    <img [src]="signaturePreviewUrl" alt="Uploaded signature preview" />
+                  } @else if (signatureFileName) {
+                    <span class="signature-file">{{ signatureFileName }}</span>
+                  } @else {
+                    <span class="signature-empty">Drop signature image or PDF here</span>
+                  }
+                </button>
+                <input
+                  #signatureInput
+                  class="signature-input"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  (change)="uploadSignature($event)"
+                />
+              </label>
+            </td>
+            <td>
+              <label>
+                <span>DATE</span>
+                <mat-form-field appearance="outline">
+                  <input
+                    matInput
+                    name="acceptanceDate"
+                    [matDatepicker]="acceptanceDatePicker"
+                    [(ngModel)]="acceptance.acceptanceDate"
+                  />
+                  <mat-datepicker-toggle matIconSuffix [for]="acceptanceDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #acceptanceDatePicker></mat-datepicker>
+                </mat-form-field>
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label>
+                <span>UNIT NAME</span>
+                <mat-form-field appearance="outline">
+                  <input matInput name="unitName" type="text" [(ngModel)]="acceptance.unitName" />
+                </mat-form-field>
+              </label>
+            </td>
+            <td>
+              <label>
+                <span>LAPTOP MAKE</span>
+                <mat-form-field appearance="outline">
+                  <input matInput name="laptopMake" type="text" [(ngModel)]="acceptance.laptopMake" />
+                </mat-form-field>
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label>
+                <span>LAPTOP MODEL</span>
+                <mat-form-field appearance="outline">
+                  <input matInput name="laptopModel" type="text" [(ngModel)]="acceptance.laptopModel" />
+                </mat-form-field>
+              </label>
+            </td>
+            <td>
+              <label>
+                <span>SERIAL NUMBER</span>
+                <mat-form-field appearance="outline">
+                  <input matInput name="serialNumber" type="text" [(ngModel)]="acceptance.serialNumber" />
+                </mat-form-field>
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label>
+                <span>BARCODE</span>
+                <mat-form-field appearance="outline">
+                  <input matInput name="barcode" type="text" [(ngModel)]="acceptance.barcode" />
+                </mat-form-field>
+              </label>
+            </td>
+            <td>
+              <label>
+                <span>REPLACEMENT VALUE</span>
+                <mat-form-field appearance="outline">
+                  <input matInput name="replacementValue" type="text" [(ngModel)]="acceptance.replacementValue" />
+                </mat-form-field>
+              </label>
+            </td>
+          </tr>
+        </table>
+
+        <div class="bold-line" aria-hidden="true"></div>
+
+        @if (saveMessage) {
+          <p class="save-message">{{ saveMessage }}</p>
+        }
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="button" (click)="saveAcceptance()">Save acceptance</button>
+        </div>
+      </section>
+    </form>
+  </section>
+</main>

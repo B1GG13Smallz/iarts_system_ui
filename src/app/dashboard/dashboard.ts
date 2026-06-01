@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AssetsApproval } from '../assets-approval/assets-approval';
 import { AuthService, AuthSession } from '../auth/auth';
 import {
   AvailabilityRequestService,
@@ -18,18 +19,21 @@ import {
   EquipmentDetailsDialog,
   EquipmentDetailsDialogResult,
 } from './equipment-details-dialog';
+import { IntraRequestRecord, IntraRequestService } from '../request-intake/intra-request.service';
 
-type RoleKey = 'user' | 'store' | 'asset' | 'security' | 'manager';
-
-interface WorkflowStep {
-  label: string;
-  owner: string;
-  status: 'Complete' | 'Active' | 'Pending';
+interface ProcessingQueueItem {
+  id: number;
+  referenceNumber: string;
+  requester: string;
+  equipment: string;
+  status: AvailabilityStatus;
+  decisionDate: string;
 }
 
 @Component({
   selector: 'app-dashboard',
   imports: [
+    AssetsApproval,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
@@ -44,16 +48,51 @@ interface WorkflowStep {
   styleUrl: './dashboard.scss',
 })
 export class Dashboard {
-  protected readonly activeRole = signal<RoleKey>('store');
-  protected readonly activeModule = signal('Request control');
+  private readonly processingQueuePageSize = 10;
+  protected readonly intraRequests = signal<IntraRequestRecord[]>([]);
+  protected readonly activeView = signal<'dashboard' | 'assetsApproval'>('dashboard');
+  protected readonly processingQueuePage = signal(0);
+  protected readonly pendingAvailabilityRequests = computed(() =>
+    this.availabilityService.requests().filter((request) => request.status === 'PENDING'),
+  );
+  protected readonly processingQueue = computed<ProcessingQueueItem[]>(() =>
+    this.availabilityService
+      .requests()
+      .filter((request) => request.status !== 'PENDING')
+      .map((request) => {
+        const intraRequest = this.intraRequests().find((item) => item.referenceNumber === request.referenceNumber);
+
+        return {
+          id: request.id,
+          referenceNumber: request.referenceNumber,
+          requester: intraRequest?.chiefUser || 'Not captured',
+          equipment: request.equipment,
+          status: request.status,
+          decisionDate: request.updatedAt,
+        };
+      }),
+  );
+  protected readonly pagedProcessingQueue = computed(() => {
+    const start = this.processingQueuePage() * this.processingQueuePageSize;
+
+    return this.processingQueue().slice(start, start + this.processingQueuePageSize);
+  });
+  protected readonly canViewMoreProcessingQueue = computed(
+    () => (this.processingQueuePage() + 1) * this.processingQueuePageSize < this.processingQueue().length,
+  );
 
   constructor(
     protected readonly availabilityService: AvailabilityRequestService,
     private readonly authService: AuthService,
     private readonly dialog: MatDialog,
+    private readonly intraRequestService: IntraRequestService,
     private readonly router: Router,
   ) {
     this.availabilityService.loadAll().subscribe();
+    this.intraRequestService.findAll().subscribe({
+      next: (requests) => this.intraRequests.set(requests),
+      error: () => this.intraRequests.set([]),
+    });
   }
 
   protected isAdmin(): boolean {
@@ -69,8 +108,16 @@ export class Dashboard {
     this.router.navigateByUrl('/login');
   }
 
+  protected showDashboard(): void {
+    this.activeView.set('dashboard');
+  }
+
+  protected showAssetsApproval(): void {
+    this.activeView.set('assetsApproval');
+  }
+
   protected updateAvailability(id: number, status: AvailabilityStatus): void {
-    this.availabilityService.updateStatus(id, status).subscribe();
+    this.availabilityService.updateStatus(id, status).subscribe(() => this.resetProcessingQueuePageIfEmpty());
   }
 
   protected openAvailableDialog(request: EquipmentAvailabilityRequest): void {
@@ -89,8 +136,35 @@ export class Dashboard {
           return;
         }
 
-        this.availabilityService.updateStatus(request.id, 'AVAILABLE', details).subscribe();
+        this.availabilityService
+          .updateStatus(request.id, 'AVAILABLE', details)
+          .subscribe(() => this.resetProcessingQueuePageIfEmpty());
       });
+  }
+
+  protected viewMoreProcessingQueue(): void {
+    if (!this.canViewMoreProcessingQueue()) {
+      return;
+    }
+
+    this.processingQueuePage.update((page) => page + 1);
+  }
+
+  protected previousProcessingQueuePage(): void {
+    this.processingQueuePage.update((page) => Math.max(0, page - 1));
+  }
+
+  protected processingQueueRange(): string {
+    const total = this.processingQueue().length;
+
+    if (!total) {
+      return '0 of 0';
+    }
+
+    const start = this.processingQueuePage() * this.processingQueuePageSize + 1;
+    const end = Math.min(start + this.processingQueuePageSize - 1, total);
+
+    return `${start}-${end} of ${total}`;
   }
 
   protected readonly stats = [
@@ -98,52 +172,6 @@ export class Dashboard {
     { label: 'Assets in stock', value: '342', trend: '86 laptops, 41 monitors' },
     { label: 'Approvals due', value: '37', trend: '12 take-home, 9 removals' },
     { label: 'Audit events', value: '1,486', trend: 'Captured this month' },
-  ];
-
-  protected readonly roles: { key: RoleKey; title: string; summary: string }[] = [
-    {
-      key: 'user',
-      title: 'End User',
-      summary: 'Submit requests, acknowledge policy, confirm receipt and movement details.',
-    },
-    {
-      key: 'store',
-      title: 'ICT Storeroom',
-      summary: 'Verify stock, issue assets, approve ICT removal sections and update allocations.',
-    },
-    {
-      key: 'asset',
-      title: 'Asset Management',
-      summary: 'Verify movable asset details and approve MAM removal controls.',
-    },
-    {
-      key: 'security',
-      title: 'Security',
-      summary: 'Validate approved removal documentation before equipment exits premises.',
-    },
-    {
-      key: 'manager',
-      title: 'ICT Management',
-      summary: 'Review governance, escalations, reporting and audit evidence.',
-    },
-  ];
-
-  protected readonly modules = [
-    'Request control',
-    'Issuing',
-    'Movement',
-    'Removal',
-    'Damage',
-    'Audit',
-  ];
-
-  protected readonly workflow: WorkflowStep[] = [
-    { label: 'Request submitted', owner: 'End user', status: 'Complete' },
-    { label: 'Printer check and QTS routing', owner: 'System', status: 'Complete' },
-    { label: 'Stock verification', owner: 'ICT Storeroom', status: 'Active' },
-    { label: 'Approval decision', owner: 'Approver', status: 'Pending' },
-    { label: 'Policy acknowledgement', owner: 'Requester', status: 'Pending' },
-    { label: 'Issue and assignment', owner: 'ICT Storeroom', status: 'Pending' },
   ];
 
   protected readonly requests = [
@@ -194,11 +222,20 @@ export class Dashboard {
     'Laptop policy acknowledgement requested',
   ];
 
-  protected setRole(role: RoleKey): void {
-    this.activeRole.set(role);
+  protected formatDate(value: string | undefined): string {
+    if (!value) {
+      return 'Not captured';
+    }
+
+    return value.slice(0, 10);
   }
 
-  protected setModule(module: string): void {
-    this.activeModule.set(module);
+  private resetProcessingQueuePageIfEmpty(): void {
+    const total = this.processingQueue().length;
+    const pageStart = this.processingQueuePage() * this.processingQueuePageSize;
+
+    if (pageStart >= total) {
+      this.processingQueuePage.set(0);
+    }
   }
 }
