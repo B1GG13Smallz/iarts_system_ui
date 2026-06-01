@@ -7,6 +7,7 @@ export type AvailabilityStatus = 'PENDING' | 'AVAILABLE' | 'UNAVAILABLE';
 
 export interface EquipmentAvailabilityRequest {
   id: number;
+  requesterName: string;
   referenceNumber: string;
   equipment: string;
   description: string | null;

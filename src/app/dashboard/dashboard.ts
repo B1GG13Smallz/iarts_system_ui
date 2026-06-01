@@ -65,7 +65,7 @@ export class Dashboard {
         return {
           id: request.id,
           referenceNumber: request.referenceNumber,
-          requester: intraRequest?.chiefUser || 'Not captured',
+          requester: request.requesterName || intraRequest?.chiefUser || 'Not captured',
           equipment: request.equipment,
           status: request.status,
           decisionDate: request.updatedAt,
