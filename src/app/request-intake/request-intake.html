@@ -15,6 +15,9 @@
         <button type="button" [class.active]="activeView() === 'request'" (click)="showRequest()">Request</button>
         <a routerLink="/request-status">Request status</a>
         <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
+        <a routerLink="/asset-return">Asset return</a>
+        <a routerLink="/register">Register</a>
+        <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
         <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
           View assets approval form
         </button>
@@ -113,7 +116,8 @@
                     name="callReference"
                     type="text"
                     [ngModel]="intraRequest.callReference"
-                    (ngModelChange)="updateCallReference($event)"
+                    readonly
+                    tabindex="-1"
                   />
                 </td>
               </tr>

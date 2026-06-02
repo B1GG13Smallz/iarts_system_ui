@@ -1,8 +1,11 @@
 import { Routes } from '@angular/router';
+import { AssetReturn } from './asset-return/asset-return';
 import { AssetsApproval } from './assets-approval/assets-approval';
 import { Dashboard } from './dashboard/dashboard';
 import { LaptopPolicyAcceptance } from './laptop-policy-acceptance/laptop-policy-acceptance';
 import { Login } from './login/login';
+import { PermissionToRemoveEquipment } from './permission-to-remove-equipment/permission-to-remove-equipment';
+import { Register } from './register/register';
 import { RequestIntake } from './request-intake/request-intake';
 import { RequestStatusPage } from './request-status/request-status-page';
 import { Technician } from './technician/technician';
@@ -11,6 +14,9 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'dashboard', component: Dashboard },
   { path: 'assets-approval', component: AssetsApproval },
+  { path: 'asset-return', component: AssetReturn },
+  { path: 'register', component: Register },
+  { path: 'permission-to-remove-equipment', component: PermissionToRemoveEquipment },
   { path: 'requests', component: RequestIntake },
   { path: 'request-status', component: RequestStatusPage },
   { path: 'laptop-policy-acceptance', component: LaptopPolicyAcceptance },

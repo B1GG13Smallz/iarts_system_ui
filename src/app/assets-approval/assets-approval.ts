@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,6 +36,7 @@ interface SignatureUploadState {
   styleUrl: './assets-approval.scss',
 })
 export class AssetsApproval implements OnInit, OnDestroy {
+  @Input() mode: 'approval' | 'return' = 'approval';
   protected readonly requests = signal<IntraRequestRecord[]>([]);
   protected readonly selectedRequestId = signal(0);
   protected readonly availabilityDetails = signal<TechnicianRequestDetails | null>(null);
@@ -97,6 +98,10 @@ export class AssetsApproval implements OnInit, OnDestroy {
     { label: 'Region:', value: '' },
     { label: 'Contact:', value: '' },
   ];
+
+  protected isAssetReturnMode(): boolean {
+    return this.mode === 'return';
+  }
 
   constructor(
     private readonly assetsApprovalService: AssetsApprovalService,
@@ -258,12 +263,12 @@ export class AssetsApproval implements OnInit, OnDestroy {
     this.intraRequest.responsibility = request.responsibility;
     this.intraRequest.chiefUser = request.chiefUser;
     this.intraRequest.callReference = request.callReference;
-    this.intraRequest.currentOwner = request.currentOwner;
-    this.intraRequest.currentBuilding = request.currentBuilding;
-    this.intraRequest.currentFloor = request.currentFloor;
-    this.intraRequest.currentOffice = request.currentOffice;
-    this.intraRequest.currentRegion = request.currentRegion;
-    this.intraRequest.currentContact = request.currentContact;
+    this.intraRequest.currentOwner = this.isAssetReturnMode() ? '' : request.currentOwner;
+    this.intraRequest.currentBuilding = this.isAssetReturnMode() ? '' : request.currentBuilding;
+    this.intraRequest.currentFloor = this.isAssetReturnMode() ? '' : request.currentFloor;
+    this.intraRequest.currentOffice = this.isAssetReturnMode() ? '' : request.currentOffice;
+    this.intraRequest.currentRegion = this.isAssetReturnMode() ? '' : request.currentRegion;
+    this.intraRequest.currentContact = this.isAssetReturnMode() ? '' : request.currentContact;
     this.intraRequest.destinationOwner = request.destinationOwner;
     this.intraRequest.destinationBuilding = request.destinationBuilding;
     this.intraRequest.destinationFloor = request.destinationFloor;
@@ -271,14 +276,23 @@ export class AssetsApproval implements OnInit, OnDestroy {
     this.intraRequest.destinationRegion = request.destinationRegion;
     this.intraRequest.destinationContact = request.destinationContact;
     this.intraRequest.movementReason = request.movementReason;
-    this.currentLocation = [
-      { label: 'Owner:', value: request.currentOwner || 'IS STOREROOM' },
-      { label: 'Building:', value: request.currentBuilding || 'CGO' },
-      { label: 'Floor:', value: request.currentFloor || '4TH' },
-      { label: 'Office: (white sticker on the door)', value: request.currentOffice || '441' },
-      { label: 'Region:', value: request.currentRegion || 'HEAD OFFICE' },
-      { label: 'Contact:', value: request.currentContact || '012 406 1724' },
-    ];
+    this.currentLocation = this.isAssetReturnMode()
+      ? [
+          { label: 'Owner:', value: '' },
+          { label: 'Building:', value: '' },
+          { label: 'Floor:', value: '' },
+          { label: 'Office: (white sticker on the door)', value: '' },
+          { label: 'Region:', value: '' },
+          { label: 'Contact:', value: '' },
+        ]
+      : [
+          { label: 'Owner:', value: request.currentOwner || 'IS STOREROOM' },
+          { label: 'Building:', value: request.currentBuilding || 'CGO' },
+          { label: 'Floor:', value: request.currentFloor || '4TH' },
+          { label: 'Office: (white sticker on the door)', value: request.currentOffice || '441' },
+          { label: 'Region:', value: request.currentRegion || 'HEAD OFFICE' },
+          { label: 'Contact:', value: request.currentContact || '012 406 1724' },
+        ];
     this.loadAvailabilityDetails(request.referenceNumber);
   }
 

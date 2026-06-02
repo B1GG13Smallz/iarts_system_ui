@@ -9,7 +9,13 @@
     </div>
 
     <nav>
-      <a routerLink="/assets-approval" class="active">Assets approval</a>
+      <a routerLink="/requests">Request</a>
+      <a routerLink="/request-status">Request status</a>
+      <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
+      <a routerLink="/assets-approval" class="active">View assets approval form</a>
+      <a routerLink="/asset-return">Asset return</a>
+      <a routerLink="/register">Register</a>
+      <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">
@@ -113,7 +119,32 @@
             @for (location of currentLocation; track location.label; let index = $index) {
               <tr>
                 <td class="label-cell">{{ location.label }}</td>
-                <td>{{ location.value }}</td>
+                <td>
+                  @if (isAssetReturnMode()) {
+                    @switch (index) {
+                      @case (0) {
+                        <input name="currentOwner" type="text" [(ngModel)]="intraRequest.currentOwner" />
+                      }
+                      @case (1) {
+                        <input name="currentBuilding" type="text" [(ngModel)]="intraRequest.currentBuilding" />
+                      }
+                      @case (2) {
+                        <input name="currentFloor" type="text" [(ngModel)]="intraRequest.currentFloor" />
+                      }
+                      @case (3) {
+                        <input name="currentOffice" type="text" [(ngModel)]="intraRequest.currentOffice" />
+                      }
+                      @case (4) {
+                        <input name="currentRegion" type="text" [(ngModel)]="intraRequest.currentRegion" />
+                      }
+                      @case (5) {
+                        <input name="currentContact" type="text" [(ngModel)]="intraRequest.currentContact" />
+                      }
+                    }
+                  } @else {
+                    {{ location.value }}
+                  }
+                </td>
                 <td class="label-cell">{{ destinationFields[index] }}</td>
                 <td>
                   @switch (index) {

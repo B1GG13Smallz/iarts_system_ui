@@ -1,5 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { catchError, finalize, forkJoin, of, switchMap, tap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -19,7 +21,7 @@ import {
   EquipmentDetailsDialog,
   EquipmentDetailsDialogResult,
 } from './equipment-details-dialog';
-import { IntraRequestRecord, IntraRequestService } from '../request-intake/intra-request.service';
+import { IntraRequestPayload, IntraRequestRecord, IntraRequestService } from '../request-intake/intra-request.service';
 
 interface ProcessingQueueItem {
   id: number;
@@ -30,10 +32,20 @@ interface ProcessingQueueItem {
   decisionDate: string;
 }
 
+interface AdminRequestForm {
+  referenceNumber: string;
+  requester: string;
+  department: string;
+  subDirectorate: string;
+  assetType: string;
+  justification: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   imports: [
     AssetsApproval,
+    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
@@ -48,10 +60,21 @@ interface ProcessingQueueItem {
   styleUrl: './dashboard.scss',
 })
 export class Dashboard {
+  private readonly referenceNumberPattern = /^(SR|IR)\d{6}$/i;
   private readonly processingQueuePageSize = 10;
   protected readonly intraRequests = signal<IntraRequestRecord[]>([]);
   protected readonly activeView = signal<'dashboard' | 'assetsApproval'>('dashboard');
   protected readonly processingQueuePage = signal(0);
+  protected readonly isSavingAdminRequest = signal(false);
+  protected readonly adminRequestMessage = signal('');
+  protected readonly adminRequest: AdminRequestForm = {
+    referenceNumber: '',
+    requester: '',
+    department: '',
+    subDirectorate: '',
+    assetType: 'Laptop',
+    justification: '',
+  };
   protected readonly pendingAvailabilityRequests = computed(() =>
     this.availabilityService.requests().filter((request) => request.status === 'PENDING'),
   );
@@ -117,7 +140,60 @@ export class Dashboard {
   }
 
   protected updateAvailability(id: number, status: AvailabilityStatus): void {
-    this.availabilityService.updateStatus(id, status).subscribe(() => this.resetProcessingQueuePageIfEmpty());
+    const request = this.availabilityService.requests().find((item) => item.id === id);
+
+    if (!request) {
+      return;
+    }
+
+    this.ensureIntraRequestForAvailability(request)
+      .pipe(
+        switchMap(() => this.availabilityService.updateStatus(id, status)),
+      )
+      .subscribe(() => this.resetProcessingQueuePageIfEmpty());
+  }
+
+  protected saveAdminRequest(): void {
+    const referenceNumber = this.adminRequest.referenceNumber.trim().toUpperCase();
+    const requester = this.adminRequest.requester.trim();
+    const department = this.adminRequest.department.trim();
+    const subDirectorate = this.adminRequest.subDirectorate.trim() || department;
+    const assetType = this.adminRequest.assetType.trim();
+    const justification = this.adminRequest.justification.trim();
+
+    this.adminRequestMessage.set('');
+
+    if (!referenceNumber || !requester || !department || !assetType) {
+      this.adminRequestMessage.set('Complete the reference, requester, department and asset type fields.');
+      return;
+    }
+
+    if (!this.referenceNumberPattern.test(referenceNumber)) {
+      this.adminRequestMessage.set('Reference number must start with SR or IR followed by 6 digits, for example SR123456.');
+      return;
+    }
+
+    const payload = this.createIntraPayload(referenceNumber, assetType, requester, department, subDirectorate, justification);
+
+    this.isSavingAdminRequest.set(true);
+    forkJoin({
+      request: this.intraRequestService.save(payload),
+      availability: this.availabilityService.createRequest(referenceNumber, assetType).pipe(catchError(() => of(null))),
+    })
+      .pipe(finalize(() => this.isSavingAdminRequest.set(false)))
+      .subscribe({
+        next: () => {
+          this.adminRequest.referenceNumber = '';
+          this.adminRequest.requester = '';
+          this.adminRequest.department = '';
+          this.adminRequest.subDirectorate = '';
+          this.adminRequest.assetType = 'Laptop';
+          this.adminRequest.justification = '';
+          this.adminRequestMessage.set('Request saved. The technician dashboard can now find it by reference number.');
+          this.reloadDashboardData();
+        },
+        error: () => this.adminRequestMessage.set('Could not save the request. Please check the reference number and try again.'),
+      });
   }
 
   protected openAvailableDialog(request: EquipmentAvailabilityRequest): void {
@@ -136,8 +212,10 @@ export class Dashboard {
           return;
         }
 
-        this.availabilityService
-          .updateStatus(request.id, 'AVAILABLE', details)
+        this.ensureIntraRequestForAvailability(request)
+          .pipe(
+            switchMap(() => this.availabilityService.updateStatus(request.id, 'AVAILABLE', details)),
+          )
           .subscribe(() => this.resetProcessingQueuePageIfEmpty());
       });
   }
@@ -228,6 +306,66 @@ export class Dashboard {
     }
 
     return value.slice(0, 10);
+  }
+
+  private reloadDashboardData(): void {
+    this.availabilityService.loadAll().subscribe();
+    this.intraRequestService.findAll().subscribe({
+      next: (requests) => this.intraRequests.set(requests),
+      error: () => this.intraRequests.set([]),
+    });
+  }
+
+  private ensureIntraRequestForAvailability(request: EquipmentAvailabilityRequest) {
+    const referenceNumber = request.referenceNumber.trim().toUpperCase();
+    const existingRequest = this.intraRequests().find(
+      (item) => item.referenceNumber.trim().toUpperCase() === referenceNumber,
+    );
+
+    if (existingRequest) {
+      return of(existingRequest);
+    }
+
+    return this.intraRequestService
+      .save(this.createIntraPayload(referenceNumber, request.equipment, 'Not captured', 'ICT Assets', 'ICT Assets', ''))
+      .pipe(
+        catchError(() => of(null)),
+        tap(() => this.reloadDashboardData()),
+      );
+  }
+
+  private createIntraPayload(
+    referenceNumber: string,
+    assetType: string,
+    requester: string,
+    department: string,
+    subDirectorate: string,
+    justification: string,
+  ): IntraRequestPayload {
+    return {
+      referenceNumber,
+      itpNumber: '',
+      orderNumber: '',
+      chiefDirectorate: department,
+      subDirectorate,
+      objective: `${assetType} request`,
+      responsibility: requester,
+      chiefUser: requester,
+      callReference: referenceNumber,
+      currentOwner: 'IS STOREROOM',
+      currentBuilding: 'CGO',
+      currentFloor: '4TH',
+      currentOffice: '441',
+      currentRegion: 'HEAD OFFICE',
+      currentContact: '012 406 1724',
+      destinationOwner: requester,
+      destinationBuilding: '',
+      destinationFloor: '',
+      destinationOffice: '',
+      destinationRegion: '',
+      destinationContact: '',
+      movementReason: justification,
+    };
   }
 
   private resetProcessingQueuePageIfEmpty(): void {

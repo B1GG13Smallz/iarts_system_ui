@@ -13,6 +13,8 @@
       <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
         View assets approval form
       </button>
+      <a routerLink="/register">Register</a>
+      <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">
@@ -156,19 +158,25 @@
         </table>
 
         <section class="process-panel" aria-label="Technician process update">
-          <div>
-            <span class="eyebrow">Process update</span>
-            <h3>Update request progress</h3>
-          </div>
-          <div class="process-actions">
-            @for (status of statuses; track status.value) {
-              <button mat-stroked-button type="button" (click)="updateStatus(status.value)">
-                {{ status.label }}
-              </button>
+          @if (details.source === 'AVAILABILITY') {
+            <p class="status-message">
+              This reference is saved as an equipment availability request. The full INTRA request details have not been captured yet.
+            </p>
+          } @else {
+            <div>
+              <span class="eyebrow">Process update</span>
+              <h3>Update request progress</h3>
+            </div>
+            <div class="process-actions">
+              @for (status of statuses; track status.value) {
+                <button mat-stroked-button type="button" (click)="updateStatus(status.value)">
+                  {{ status.label }}
+                </button>
+              }
+            </div>
+            @if (statusMessage()) {
+              <p class="status-message">{{ statusMessage() }}</p>
             }
-          </div>
-          @if (statusMessage()) {
-            <p class="status-message">{{ statusMessage() }}</p>
           }
         </section>
       </section>
