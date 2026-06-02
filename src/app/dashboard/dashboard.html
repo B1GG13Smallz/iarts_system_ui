@@ -74,7 +74,7 @@
             <div class="availability-admin-grid">
               <div>
                 <span>Reference</span>
-                <strong>{{ request.referenceNumber }}</strong>
+                <strong>{{ request.referenceNumber || 'Entered in INTRA step 2' }}</strong>
               </div>
               <div>
                 <span>Equipment</span>
@@ -120,7 +120,7 @@
           </div>
           @for (request of pagedProcessingQueue(); track request.id) {
             <div class="table-row" role="row">
-              <strong role="cell">{{ request.referenceNumber }}</strong>
+              <strong role="cell">{{ request.referenceNumber || 'Not linked' }}</strong>
               <span role="cell">{{ request.requester }}</span>
               <span role="cell">{{ request.equipment }}</span>
               <span role="cell">{{ request.status }}</span>

@@ -13,7 +13,7 @@
       <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
         View assets approval form
       </button>
-      <a routerLink="/register">Register</a>
+      <button type="button" [class.active]="activeView() === 'register'" (click)="showRegister()">Register</button>
       <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
     </nav>
 
@@ -33,6 +33,10 @@
     @if (activeView() === 'assetsApproval') {
       <section class="embedded-assets-approval">
         <app-assets-approval />
+      </section>
+    } @else if (activeView() === 'register') {
+      <section class="embedded-register">
+        <app-register [embedded]="true" [prefill]="registerPrefill()" />
       </section>
     } @else {
     <header class="page-header">

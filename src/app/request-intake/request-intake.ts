@@ -1,4 +1,4 @@
-import { Component, OnDestroy, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,9 +7,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatStepperModule } from '@angular/material/stepper';
+import { catchError, of, switchMap } from 'rxjs';
 import { AssetsApproval } from '../assets-approval/assets-approval';
 import { AuthService, AuthSession } from '../auth/auth';
 import { AvailabilityRequest } from '../availability/availability-request';
+import { AvailabilityRequestService } from '../availability/availability-request.service';
 import { RequestStatus } from '../availability/request-status';
 import { IntraRequestPayload, IntraRequestService } from './intra-request.service';
 
@@ -31,7 +33,7 @@ import { IntraRequestPayload, IntraRequestService } from './intra-request.servic
   templateUrl: './request-intake.html',
   styleUrl: './request-intake.scss',
 })
-export class RequestIntake implements OnDestroy {
+export class RequestIntake implements OnDestroy, OnInit {
   private readonly referenceNumberPattern = /^(SR|IR)\d{6}$/i;
   protected readonly activeView = signal<'request' | 'assetsApproval'>('request');
   protected referenceNumber = '';
@@ -52,6 +54,7 @@ export class RequestIntake implements OnDestroy {
     subDirectorate: '',
     objective: '',
     responsibility: '',
+    rank: '',
     chiefUser: '',
     callReference: '',
     currentOwner: 'IS STOREROOM',
@@ -70,10 +73,15 @@ export class RequestIntake implements OnDestroy {
   };
 
   constructor(
+    private readonly availabilityService: AvailabilityRequestService,
     private readonly authService: AuthService,
     private readonly intraRequestService: IntraRequestService,
     private readonly router: Router,
   ) {}
+
+  ngOnInit(): void {
+    this.availabilityService.clearCurrentRequest();
+  }
 
   ngOnDestroy(): void {
     this.clearDestinationSignaturePreview();
@@ -114,7 +122,7 @@ export class RequestIntake implements OnDestroy {
 
   protected saveIntraRequest(): void {
     this.saveMessage = '';
-    const cleanReference = this.referenceNumber.trim();
+    const cleanReference = this.intraRequest.callReference.trim();
     const destinationSignatureDate = this.formatDate(this.destinationSignatureDate);
     this.updateReferenceNumber(cleanReference);
     this.intraRequest.referenceNumber = cleanReference;
@@ -124,18 +132,20 @@ export class RequestIntake implements OnDestroy {
     this.intraRequest.destinationSignatureBase64 = this.destinationSignatureBase64;
     this.applyCurrentLocationDetails();
 
-    if (!this.intraRequest.referenceNumber || !this.intraRequest.chiefDirectorate.trim() || !this.intraRequest.subDirectorate.trim() || !this.intraRequest.chiefUser.trim()) {
-      this.saveMessage = 'Complete the reference number, Chief Directorate, Sub-Directorate and Chief User fields.';
+    if (!this.intraRequest.callReference || !this.intraRequest.chiefDirectorate.trim() || !this.intraRequest.subDirectorate.trim() || !this.intraRequest.chiefUser.trim()) {
+      this.saveMessage = 'Complete the Call Ref, Chief Directorate, Sub-Directorate and Chief User fields.';
       return;
     }
 
-    if (!this.isValidReferenceNumber(this.intraRequest.referenceNumber)) {
-      this.saveMessage = 'Reference number must start with SR or IR followed by 6 digits, for example SR123456.';
+    if (!this.isValidReferenceNumber(this.intraRequest.callReference)) {
+      this.saveMessage = 'Call Ref must start with SR or IR followed by 6 digits, for example SR123456.';
       return;
     }
 
     this.isSaving = true;
-    this.intraRequestService.save(this.intraRequest).subscribe({
+    this.intraRequestService.save(this.intraRequest).pipe(
+      switchMap(() => this.updateAvailabilityReference(cleanReference)),
+    ).subscribe({
       next: () => {
         this.isSaving = false;
         this.saveMessage = 'INTRA request saved successfully.';
@@ -200,6 +210,16 @@ export class RequestIntake implements OnDestroy {
 
   private isValidReferenceNumber(referenceNumber: string): boolean {
     return this.referenceNumberPattern.test(referenceNumber.trim());
+  }
+
+  private updateAvailabilityReference(referenceNumber: string) {
+    const availabilityRequest = this.availabilityService.request();
+
+    if (!availabilityRequest) {
+      return of(null);
+    }
+
+    return this.availabilityService.updateReference(availabilityRequest.id, referenceNumber).pipe(catchError(() => of(null)));
   }
 
   private readDestinationSignatureFile(file: File | undefined): void {

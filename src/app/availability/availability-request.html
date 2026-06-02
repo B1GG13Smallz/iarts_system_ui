@@ -4,6 +4,20 @@
     <h2 id="availability-title">Send request to admin</h2>
   </div>
 
+  <mat-form-field appearance="outline" class="rank-field">
+    <mat-label>Enter your rank:</mat-label>
+    <mat-select name="rank" [ngModel]="rank" (ngModelChange)="updateRank($event)">
+      @for (option of rankOptions; track option.value) {
+        <mat-option [value]="option.value">
+          <span class="rank-option">
+            <span class="rank-value">{{ option.value }}</span>
+            <span class="rank-details">{{ option.titles }}</span>
+          </span>
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
   <label>
     <span>Equipment requested</span>
     <input
@@ -18,7 +32,7 @@
     <p class="message">{{ message() }}</p>
   }
 
-  <button mat-raised-button color="primary" type="button" (click)="submitAvailabilityRequest()">
+  <button mat-raised-button class="availability-submit" type="button" (click)="submitAvailabilityRequest()">
     Send availability request
   </button>
 </section>

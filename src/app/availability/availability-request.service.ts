@@ -8,8 +8,9 @@ export type AvailabilityStatus = 'PENDING' | 'AVAILABLE' | 'UNAVAILABLE';
 export interface EquipmentAvailabilityRequest {
   id: number;
   requesterName: string;
-  referenceNumber: string;
+  referenceNumber: string | null;
   equipment: string;
+  rank: string | null;
   description: string | null;
   serialNumber: string | null;
   barCodeNumber: string | null;
@@ -37,11 +38,25 @@ export class AvailabilityRequestService {
     private readonly http: HttpClient,
   ) {}
 
-  createRequest(referenceNumber: string, equipment: string): Observable<EquipmentAvailabilityRequest> {
+  createRequest(equipment: string, rank: string): Observable<EquipmentAvailabilityRequest> {
     return this.http
       .post<EquipmentAvailabilityRequest>(
         this.apiUrl,
-        { referenceNumber, equipment },
+        { equipment, rank },
+        { headers: this.authHeaders() },
+      )
+      .pipe(tap((request) => this.request.set(request)));
+  }
+
+  clearCurrentRequest(): void {
+    this.request.set(null);
+  }
+
+  updateReference(id: number, referenceNumber: string): Observable<EquipmentAvailabilityRequest> {
+    return this.http
+      .patch<EquipmentAvailabilityRequest>(
+        `${this.apiUrl}/${id}/reference`,
+        { referenceNumber },
         { headers: this.authHeaders() },
       )
       .pipe(tap((request) => this.request.set(request)));

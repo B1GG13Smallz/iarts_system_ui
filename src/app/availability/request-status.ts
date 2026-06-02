@@ -13,7 +13,6 @@ export class RequestStatus implements OnDestroy {
   private readonly refreshIntervalId: ReturnType<typeof setInterval>;
 
   constructor(protected readonly availabilityService: AvailabilityRequestService) {
-    this.refreshStatus();
     this.refreshIntervalId = setInterval(() => this.refreshStatus(), 5000);
   }
 
@@ -40,6 +39,8 @@ export class RequestStatus implements OnDestroy {
   }
 
   private refreshStatus(): void {
-    this.availabilityService.loadLatestMine().subscribe();
+    if (this.availabilityService.request()) {
+      this.availabilityService.loadLatestMine().subscribe();
+    }
   }
 }

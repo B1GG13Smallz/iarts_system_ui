@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnDestroy, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { catchError, finalize, forkJoin, of, switchMap, tap } from 'rxjs';
@@ -25,7 +25,7 @@ import { IntraRequestPayload, IntraRequestRecord, IntraRequestService } from '..
 
 interface ProcessingQueueItem {
   id: number;
-  referenceNumber: string;
+  referenceNumber: string | null;
   requester: string;
   equipment: string;
   status: AvailabilityStatus;
@@ -59,9 +59,10 @@ interface AdminRequestForm {
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard {
+export class Dashboard implements OnDestroy {
   private readonly referenceNumberPattern = /^(SR|IR)\d{6}$/i;
   private readonly processingQueuePageSize = 10;
+  private readonly refreshIntervalId: ReturnType<typeof setInterval>;
   protected readonly intraRequests = signal<IntraRequestRecord[]>([]);
   protected readonly activeView = signal<'dashboard' | 'assetsApproval'>('dashboard');
   protected readonly processingQueuePage = signal(0);
@@ -111,11 +112,12 @@ export class Dashboard {
     private readonly intraRequestService: IntraRequestService,
     private readonly router: Router,
   ) {
-    this.availabilityService.loadAll().subscribe();
-    this.intraRequestService.findAll().subscribe({
-      next: (requests) => this.intraRequests.set(requests),
-      error: () => this.intraRequests.set([]),
-    });
+    this.reloadDashboardData();
+    this.refreshIntervalId = setInterval(() => this.reloadDashboardData(), 5000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.refreshIntervalId);
   }
 
   protected isAdmin(): boolean {
@@ -178,7 +180,7 @@ export class Dashboard {
     this.isSavingAdminRequest.set(true);
     forkJoin({
       request: this.intraRequestService.save(payload),
-      availability: this.availabilityService.createRequest(referenceNumber, assetType).pipe(catchError(() => of(null))),
+      availability: this.availabilityService.createRequest(assetType, '').pipe(catchError(() => of(null))),
     })
       .pipe(finalize(() => this.isSavingAdminRequest.set(false)))
       .subscribe({
@@ -317,7 +319,12 @@ export class Dashboard {
   }
 
   private ensureIntraRequestForAvailability(request: EquipmentAvailabilityRequest) {
-    const referenceNumber = request.referenceNumber.trim().toUpperCase();
+    const referenceNumber = request.referenceNumber?.trim().toUpperCase();
+
+    if (!referenceNumber) {
+      return of(null);
+    }
+
     const existingRequest = this.intraRequests().find(
       (item) => item.referenceNumber.trim().toUpperCase() === referenceNumber,
     );
@@ -350,6 +357,7 @@ export class Dashboard {
       subDirectorate,
       objective: `${assetType} request`,
       responsibility: requester,
+      rank: '',
       chiefUser: requester,
       callReference: referenceNumber,
       currentOwner: 'IS STOREROOM',

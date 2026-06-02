@@ -13,5 +13,168 @@ body {
   margin: 0;
   font-family:
     Inter, "Segoe UI", Roboto, Arial, sans-serif;
-  background: #eef3f8;
+  background: #f3eee8;
+}
+
+:root {
+  --iarts-black: #171717;
+  --iarts-charcoal: #2b2b2b;
+  --iarts-gray: #6b6864;
+  --iarts-border: #d7c5b6;
+  --iarts-orange: #f58220;
+  --iarts-orange-dark: #c96014;
+  --iarts-peach: #f8e6d8;
+  --iarts-peach-soft: #fff6ef;
+  --iarts-surface: #fffaf6;
+}
+
+.technician-shell,
+.dashboard-shell,
+.request-shell,
+.status-shell,
+.assets-shell,
+.register-shell,
+.policy-shell,
+.return-shell,
+.permission-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 246, 0.86), rgba(248, 230, 216, 0.78)),
+    #f3eee8;
+}
+
+.sidebar {
+  background:
+    linear-gradient(180deg, rgba(245, 130, 32, 0.12), rgba(23, 23, 23, 0) 34%),
+    var(--iarts-black) !important;
+  border-right: 4px solid var(--iarts-orange);
+  box-shadow: 12px 0 32px rgba(23, 23, 23, 0.14);
+}
+
+.brand-mark {
+  background: var(--iarts-orange) !important;
+  color: #16110d !important;
+  box-shadow: 0 8px 22px rgba(245, 130, 32, 0.28);
+}
+
+.brand strong {
+  color: #ffffff;
+  letter-spacing: 0;
+}
+
+.brand span {
+  color: #d9d3cc !important;
+}
+
+.sidebar nav a,
+.sidebar nav button,
+.logout-button {
+  border: 1px solid transparent !important;
+  border-left: 3px solid transparent !important;
+  border-radius: 8px !important;
+  color: #f2ede8 !important;
+  font-weight: 800;
+}
+
+.sidebar nav a.active,
+.sidebar nav a:hover,
+.sidebar nav button.active,
+.sidebar nav button:hover,
+.logout-button:hover {
+  background: #2f2f2f !important;
+  border-color: rgba(245, 130, 32, 0.28) !important;
+  border-left-color: var(--iarts-orange) !important;
+  color: #ffffff !important;
+}
+
+.credentials-card {
+  border-color: rgba(245, 130, 32, 0.28) !important;
+  background: rgba(255, 246, 239, 0.08) !important;
+}
+
+.workspace {
+  background: transparent;
+}
+
+.search-panel,
+.details-panel,
+.summary-card,
+.request-card,
+.approval-panel,
+.single-page-panel,
+.form-panel,
+.table-wrap,
+.available-equipment-panel,
+.process-panel,
+.register-select,
+.mat-mdc-card {
+  border-color: var(--iarts-border) !important;
+  background: var(--iarts-peach-soft) !important;
+  box-shadow: 0 16px 38px rgba(64, 45, 31, 0.09) !important;
+}
+
+.page-header h1,
+.panel-heading h2,
+h1,
+h2,
+h3 {
+  color: var(--iarts-black);
+}
+
+.eyebrow {
+  color: var(--iarts-orange-dark) !important;
+}
+
+.status-pill,
+.status-message,
+.save-message {
+  background: #fff0e3 !important;
+  color: #8a3f0d !important;
+}
+
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary {
+  --mdc-protected-button-container-color: var(--iarts-orange);
+  --mdc-protected-button-label-text-color: #16110d;
+}
+
+.mat-mdc-stroked-button {
+  --mdc-outlined-button-outline-color: #b96a2d;
+  --mdc-outlined-button-label-text-color: #3a2f28;
+}
+
+.rank-option {
+  position: relative;
+  display: block;
+  min-width: 320px;
+  padding: 2px 0;
+}
+
+.rank-value,
+.rank-details {
+  display: block;
+}
+
+.rank-value {
+  font-weight: 800;
+}
+
+.rank-details {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  color: #8a3f0d;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  transform: translateY(-4px);
+  transition:
+    max-height 180ms ease,
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.mat-mdc-option:hover .rank-details,
+.mat-mdc-option.mdc-list-item--selected .rank-details {
+  max-height: 72px;
+  opacity: 1;
+  transform: translateY(0);
 }

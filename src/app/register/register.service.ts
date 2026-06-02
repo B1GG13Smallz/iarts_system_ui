@@ -31,6 +31,18 @@ export interface RegisterPayload {
   comment: string;
 }
 
+export interface RegisterRecord extends RegisterPayload {
+  id: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StoresOfficialSignaturePayload {
+  storesOfficialName: string;
+  storesOfficialSignOut: RegisterSignaturePayload;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -44,6 +56,21 @@ export class RegisterService {
 
   save(payload: RegisterPayload): Observable<unknown> {
     return this.http.post(this.apiUrl, payload, { headers: this.authHeaders() });
+  }
+
+  findByRegisterType(registerType: RegisterType): Observable<RegisterRecord[]> {
+    return this.http.get<RegisterRecord[]>(
+      `${this.apiUrl}?registerType=${encodeURIComponent(registerType)}`,
+      { headers: this.authHeaders() },
+    );
+  }
+
+  signStoresOfficial(id: number, payload: StoresOfficialSignaturePayload): Observable<RegisterRecord> {
+    return this.http.patch<RegisterRecord>(
+      `${this.apiUrl}/${id}/stores-official-signature`,
+      payload,
+      { headers: this.authHeaders() },
+    );
   }
 
   private authHeaders(): HttpHeaders {

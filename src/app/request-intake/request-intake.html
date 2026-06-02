@@ -47,23 +47,13 @@
         <span class="eyebrow">Request intake</span>
         <h1>User request</h1>
       </div>
-      <label class="reference-field">
-        <span>Reference number</span>
-        <input
-          name="referenceNumber"
-          type="text"
-          [ngModel]="referenceNumber"
-          (ngModelChange)="updateReferenceNumber($event)"
-          pattern="^(SR|IR|sr|ir)[0-9]{6}$"
-          maxlength="8"
-          placeholder="SR123456 or IR123456"
-          title="Reference number must start with SR or IR followed by 6 digits."
-        />
-      </label>
     </header>
 
     <section class="availability-workflow">
-      <app-availability-request [referenceNumber]="referenceNumber" />
+      <app-availability-request
+        [rank]="intraRequest.rank"
+        (rankChange)="intraRequest.rank = $event"
+      />
       <app-request-status (proceed)="proceedToIntraForm()" />
     </section>
 
@@ -105,7 +95,7 @@
                 <td>Objective:</td>
                 <td>Responsibility:</td>
                 <td>Chief User: <strong class="required">(compulsory field)</strong></td>
-                <td>Call Ref:</td>
+                <td>Call Ref: <strong class="required">(compulsory field)</strong></td>
               </tr>
               <tr>
                 <td><input name="objective" type="text" [(ngModel)]="intraRequest.objective" /></td>
@@ -116,8 +106,11 @@
                     name="callReference"
                     type="text"
                     [ngModel]="intraRequest.callReference"
-                    readonly
-                    tabindex="-1"
+                    (ngModelChange)="updateReferenceNumber($event)"
+                    pattern="^(SR|IR|sr|ir)[0-9]{6}$"
+                    maxlength="8"
+                    placeholder="SR123456 or IR123456"
+                    title="Call Ref must start with SR or IR followed by 6 digits."
                   />
                 </td>
               </tr>

@@ -11,6 +11,7 @@ export interface IntraRequestPayload {
   subDirectorate: string;
   objective: string;
   responsibility: string;
+  rank: string;
   chiefUser: string;
   callReference: string;
   currentOwner: string;

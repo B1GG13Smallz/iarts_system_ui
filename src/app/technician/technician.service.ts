@@ -88,7 +88,7 @@ export class TechnicianService {
       .pipe(
         map((requests) => {
           const availabilityRequest = requests.find(
-            (request) => request.referenceNumber.trim().toUpperCase() === referenceNumber,
+            (request) => request.referenceNumber?.trim().toUpperCase() === referenceNumber,
           );
 
           if (!availabilityRequest) {
@@ -98,7 +98,7 @@ export class TechnicianService {
           return {
             request: {
               id: availabilityRequest.id,
-              referenceNumber: availabilityRequest.referenceNumber,
+              referenceNumber: availabilityRequest.referenceNumber || referenceNumber,
               itpNumber: '',
               orderNumber: '',
               chiefDirectorate: 'Not captured',
@@ -106,7 +106,7 @@ export class TechnicianService {
               objective: `${availabilityRequest.equipment} request`,
               responsibility: 'Not captured',
               chiefUser: 'Not captured',
-              callReference: availabilityRequest.referenceNumber,
+              callReference: availabilityRequest.referenceNumber || referenceNumber,
               currentOwner: 'IS STOREROOM',
               currentBuilding: 'CGO',
               currentFloor: '4TH',

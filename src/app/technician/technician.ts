@@ -1,25 +1,42 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { AssetsApproval } from '../assets-approval/assets-approval';
 import { AuthService, AuthSession } from '../auth/auth';
+import { Register, RegisterPrefill } from '../register/register';
 import { TechnicianRequestDetails, TechnicianRequestStatus, TechnicianService } from './technician.service';
 
 @Component({
   selector: 'app-technician',
-  imports: [AssetsApproval, FormsModule, MatButtonModule, RouterLink],
+  imports: [AssetsApproval, FormsModule, MatButtonModule, Register, RouterLink],
   templateUrl: './technician.html',
   styleUrl: './technician.scss',
 })
 export class Technician {
-  protected readonly activeView = signal<'technician' | 'assetsApproval'>('technician');
+  protected readonly activeView = signal<'technician' | 'assetsApproval' | 'register'>('technician');
   protected referenceNumber = '';
   protected readonly result = signal<TechnicianRequestDetails | null>(null);
   protected readonly message = signal('');
   protected readonly isSearching = signal(false);
   protected readonly statusMessage = signal('');
+  protected readonly registerPrefill = computed<RegisterPrefill | null>(() => {
+    const details = this.result();
+
+    if (!details) {
+      return null;
+    }
+
+    return {
+      itemDescription: details.equipmentDescription || details.equipment,
+      serialNumber: details.serialNumber,
+      barCode: details.barCodeNumber,
+      orderNumber: details.request.orderNumber,
+      userFullName: details.request.destinationOwner || details.request.chiefUser,
+      roomNumber: details.request.destinationOffice,
+    };
+  });
   protected readonly statuses: { label: string; value: TechnicianRequestStatus }[] = [
     { label: 'Assigned', value: 'ASSIGNED' },
     { label: 'In progress', value: 'IN_PROGRESS' },
@@ -43,6 +60,10 @@ export class Technician {
 
   protected showAssetsApproval(): void {
     this.activeView.set('assetsApproval');
+  }
+
+  protected showRegister(): void {
+    this.activeView.set('register');
   }
 
   protected search(): void {
@@ -78,6 +99,9 @@ export class Technician {
       next: (updatedRequest) => {
         this.result.set({ ...currentResult, request: updatedRequest });
         this.statusMessage.set('Request process updated.');
+        if (status === 'IN_PROGRESS') {
+          this.showRegister();
+        }
       },
       error: () => this.statusMessage.set('Could not update request process.'),
     });

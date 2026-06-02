@@ -64,6 +64,7 @@ export class AssetsApproval implements OnInit, OnDestroy {
     subDirectorate: '',
     objective: '',
     responsibility: '',
+    rank: '',
     chiefUser: '',
     callReference: '',
     currentOwner: '',

@@ -207,10 +207,10 @@ nav {
 }
 
 .request-stepper {
-  border: 1px solid #d7e0ea;
+  border: 1px solid #d7c5b6;
   border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 16px 40px rgba(14, 42, 71, 0.07);
+  background: #fffaf6;
+  box-shadow: 0 16px 38px rgba(64, 45, 31, 0.09);
 }
 
 .step-content {
@@ -233,32 +233,32 @@ nav {
 
   th,
   td {
-    border: 1px solid #8ea4b8;
+    border: 1px solid #d7c5b6;
     padding: 10px;
     vertical-align: middle;
   }
 
   th {
-    background: #dcebf5;
-    color: #10243c;
+    background: linear-gradient(180deg, #fff0e3, #f4c49a);
+    color: #171717;
     font-weight: 800;
     text-align: center;
   }
 
   td {
     min-height: 44px;
-    color: #263a4f;
+    color: #3a2f28;
     font-weight: 700;
   }
 
   input,
   textarea {
     width: 100%;
-    border: 1px solid #cbd8e4;
+    border: 1px solid #d7c5b6;
     border-radius: 6px;
     padding: 9px 10px;
-    background: #fbfdff;
-    color: #172033;
+    background: #fffaf6;
+    color: #171717;
   }
 
   textarea {
@@ -274,11 +274,11 @@ nav {
 
 .label-cell {
   width: 22%;
-  background: #f7fafc;
+  background: #fff0e3;
 }
 
 .reason-heading {
-  background: #f1f6fb;
+  background: #f4c49a;
   font-weight: 800;
 }
 
@@ -287,18 +287,18 @@ nav {
   width: 100%;
   min-height: 86px;
   place-items: center;
-  border: 1px dashed #8ea4b8;
+  border: 1px dashed #c96014;
   border-radius: 6px;
   padding: 10px 12px;
-  background: #fbfdff;
-  color: #263a4f;
+  background: #fffaf6;
+  color: #3a2f28;
   font: inherit;
   text-align: center;
 
   &:hover,
   &.dragging {
-    border-color: #0e7490;
-    background: #ecfeff;
+    border-color: #f58220;
+    background: #fff0e3;
   }
 
   img {
@@ -328,8 +328,8 @@ nav {
   margin: 0;
   border-radius: 8px;
   padding: 10px 12px;
-  background: #e8f8ff;
-  color: #075985;
+  background: #fff0e3;
+  color: #8a3f0d;
   font-weight: 700;
 }
 

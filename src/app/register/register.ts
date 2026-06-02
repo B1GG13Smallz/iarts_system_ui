@@ -1,4 +1,5 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +10,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { AuthService, AuthSession } from '../auth/auth';
-import { RegisterPayload, RegisterService, RegisterSignaturePayload, RegisterType } from './register.service';
+import {
+  RegisterPayload,
+  RegisterRecord,
+  RegisterService,
+  RegisterSignaturePayload,
+  RegisterType,
+} from './register.service';
 
 interface SignatureState {
   fileName: string;
@@ -33,6 +40,22 @@ interface RegisterForm {
   comment: string;
 }
 
+interface StoresSignState {
+  storesOfficialName: string;
+  signature: SignatureState;
+  isSaving: boolean;
+  message: string;
+}
+
+export interface RegisterPrefill {
+  itemDescription?: string;
+  serialNumber?: string;
+  barCode?: string;
+  orderNumber?: string;
+  userFullName?: string;
+  roomNumber?: string;
+}
+
 @Component({
   selector: 'app-register',
   imports: [
@@ -48,8 +71,22 @@ interface RegisterForm {
   ],
   templateUrl: './register.html',
   styleUrl: './register.scss',
+  animations: [
+    trigger('registerRecordsSwap', [
+      transition('* => *', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('180ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+      ]),
+    ]),
+  ],
 })
-export class Register implements OnDestroy {
+export class Register implements OnDestroy, OnInit {
+  @Input() embedded = false;
+  @Input() set prefill(value: RegisterPrefill | null | undefined) {
+    this.prefillValue = value ?? null;
+    this.applyPrefill();
+  }
+
   protected readonly dataSource = [{}];
   protected readonly displayedColumns = [
     'dateOut',
@@ -80,8 +117,14 @@ export class Register implements OnDestroy {
   };
   protected readonly userSignature = this.createSignatureState();
   protected readonly storesOfficialSignature = this.createSignatureState();
+  protected readonly commentColumnSpan = this.displayedColumns.length;
+  protected records: RegisterRecord[] = [];
+  protected recordsMessage = '';
+  protected isLoadingRecords = false;
   protected saveMessage = '';
   protected isSaving = false;
+  private prefillValue: RegisterPrefill | null = null;
+  private readonly storesSignStates = new Map<number, StoresSignState>();
 
   constructor(
     private readonly authService: AuthService,
@@ -92,6 +135,13 @@ export class Register implements OnDestroy {
   ngOnDestroy(): void {
     this.clearSignaturePreview(this.userSignature);
     this.clearSignaturePreview(this.storesOfficialSignature);
+    this.storesSignStates.forEach((state) => this.clearSignaturePreview(state.signature));
+  }
+
+  ngOnInit(): void {
+    if (this.isStoreroom()) {
+      this.loadRecords();
+    }
   }
 
   protected session(): AuthSession | null {
@@ -115,6 +165,82 @@ export class Register implements OnDestroy {
     return options;
   }
 
+  protected isStoreroom(): boolean {
+    return this.authService.hasRole('ICT_STOREROOM');
+  }
+
+  protected selectRegisterType(registerType: RegisterType): void {
+    this.form.registerType = registerType;
+
+    if (this.isStoreroom()) {
+      this.loadRecords();
+    }
+  }
+
+  protected stateFor(record: RegisterRecord): StoresSignState {
+    const existingState = this.storesSignStates.get(record.id);
+
+    if (existingState) {
+      return existingState;
+    }
+
+    const state: StoresSignState = {
+      storesOfficialName: record.storesOfficialName || this.session()?.username || '',
+      signature: this.createSignatureState(),
+      isSaving: false,
+      message: '',
+    };
+    this.storesSignStates.set(record.id, state);
+    return state;
+  }
+
+  protected signatureLabel(signature: RegisterSignaturePayload | undefined): string {
+    return signature?.fileName || 'Not signed';
+  }
+
+  protected signaturePreview(signature: RegisterSignaturePayload | undefined): string {
+    if (!signature || !signature.contentType.startsWith('image/')) {
+      return '';
+    }
+
+    return `data:${signature.contentType};base64,${signature.base64}`;
+  }
+
+  protected uploadStoresOfficialSignature(record: RegisterRecord, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.readSignatureFile(this.stateFor(record).signature, input.files?.[0]);
+    input.value = '';
+  }
+
+  protected signStoresOfficial(record: RegisterRecord): void {
+    const state = this.stateFor(record);
+    state.message = '';
+
+    if (!state.storesOfficialName.trim() || !state.signature.fileName || !state.signature.base64) {
+      state.message = 'Enter the stores official name and upload a signature.';
+      return;
+    }
+
+    state.isSaving = true;
+    this.registerService
+      .signStoresOfficial(record.id, {
+        storesOfficialName: state.storesOfficialName.trim(),
+        storesOfficialSignOut: this.signaturePayload(state.signature) as RegisterSignaturePayload,
+      })
+      .subscribe({
+        next: (updatedRecord) => {
+          state.isSaving = false;
+          state.message = 'Stores official signature saved.';
+          this.records = this.records.map((currentRecord) => currentRecord.id === updatedRecord.id ? updatedRecord : currentRecord);
+          this.resetSignature(state.signature);
+        },
+        error: () => {
+          state.isSaving = false;
+          state.message = 'Could not save stores official signature.';
+        },
+      });
+  }
+
   protected saveRegister(): void {
     this.saveMessage = '';
     const payload = this.createPayload();
@@ -124,8 +250,8 @@ export class Register implements OnDestroy {
       return;
     }
 
-    if (!payload.userSignOut || !payload.storesOfficialSignOut) {
-      this.saveMessage = 'Upload both user and stores official signatures before saving.';
+    if (!payload.userSignOut) {
+      this.saveMessage = 'Upload the user signature before saving.';
       return;
     }
 
@@ -135,6 +261,9 @@ export class Register implements OnDestroy {
         this.isSaving = false;
         this.saveMessage = 'Register saved successfully.';
         this.resetForm();
+        if (this.isStoreroom()) {
+          this.loadRecords();
+        }
       },
       error: () => {
         this.isSaving = false;
@@ -246,6 +375,37 @@ export class Register implements OnDestroy {
     this.form.comment = '';
     this.resetSignature(this.userSignature);
     this.resetSignature(this.storesOfficialSignature);
+    this.applyPrefill();
+  }
+
+  private loadRecords(): void {
+    this.recordsMessage = '';
+    this.isLoadingRecords = true;
+    this.registerService.findByRegisterType(this.form.registerType).subscribe({
+      next: (records) => {
+        this.records = records;
+        this.isLoadingRecords = false;
+        this.recordsMessage = records.length ? '' : 'No records found for this register type.';
+      },
+      error: () => {
+        this.records = [];
+        this.isLoadingRecords = false;
+        this.recordsMessage = 'Could not load register records.';
+      },
+    });
+  }
+
+  private applyPrefill(): void {
+    if (!this.prefillValue) {
+      return;
+    }
+
+    this.form.itemDescription = this.prefillValue.itemDescription ?? this.form.itemDescription;
+    this.form.serialNumber = this.prefillValue.serialNumber ?? this.form.serialNumber;
+    this.form.barCode = this.prefillValue.barCode ?? this.form.barCode;
+    this.form.orderNumber = this.prefillValue.orderNumber ?? this.form.orderNumber;
+    this.form.userFullName = this.prefillValue.userFullName ?? this.form.userFullName;
+    this.form.roomNumber = this.prefillValue.roomNumber ?? this.form.roomNumber;
   }
 
   private resetSignature(signature: SignatureState): void {
