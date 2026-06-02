@@ -1,0 +1,37 @@
+<main class="return-shell">
+  <aside class="sidebar" aria-label="IARTS asset return navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/requests">Request</a>
+      <a routerLink="/request-status">Request status</a>
+      <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
+      <a routerLink="/assets-approval">View assets approval form</a>
+      <a routerLink="/asset-return" class="active">Asset return</a>
+      <a routerLink="/register">Register</a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <section class="embedded-assets-approval" aria-label="Asset return form">
+      <app-assets-approval mode="return" />
+    </section>
+  </section>
+</main>

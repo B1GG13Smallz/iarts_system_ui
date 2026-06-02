@@ -1,0 +1,220 @@
+<main class="register-shell">
+  <aside class="sidebar" aria-label="IARTS register navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/requests">Request</a>
+      <a routerLink="/request-status">Request status</a>
+      <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
+      <a routerLink="/assets-approval">View assets approval form</a>
+      <a routerLink="/asset-return">Asset return</a>
+      <a routerLink="/register" class="active">Register</a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">Equipment registers</span>
+        <h1>Register</h1>
+      </div>
+      <mat-form-field appearance="outline" class="register-select">
+        <mat-label>Register type</mat-label>
+        <mat-select name="registerType" [(ngModel)]="form.registerType">
+          @for (option of registerOptions(); track option) {
+            <mat-option [value]="option">{{ option }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </header>
+
+    <form class="register-form">
+      <div class="table-wrap">
+        <table mat-table [dataSource]="dataSource" multiTemplateDataRows class="register-table">
+          <ng-container matColumnDef="dateOut">
+            <th mat-header-cell *matHeaderCellDef>Date out</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="dateOut" [matDatepicker]="dateOutPicker" [(ngModel)]="form.dateOut" />
+                <mat-datepicker-toggle matIconSuffix [for]="dateOutPicker"></mat-datepicker-toggle>
+                <mat-datepicker #dateOutPicker></mat-datepicker>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="itemDescription">
+            <th mat-header-cell *matHeaderCellDef>Item Description</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="itemDescription" [(ngModel)]="form.itemDescription" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="serialNumber">
+            <th mat-header-cell *matHeaderCellDef>Serial Number</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="serialNumber" [(ngModel)]="form.serialNumber" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="barCode">
+            <th mat-header-cell *matHeaderCellDef>Bar code</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="barCode" [(ngModel)]="form.barCode" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="orderNumber">
+            <th mat-header-cell *matHeaderCellDef>Order Number</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="orderNumber" [(ngModel)]="form.orderNumber" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="userFullName">
+            <th mat-header-cell *matHeaderCellDef>Name &amp; Surname of user</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="userFullName" [(ngModel)]="form.userFullName" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="extension">
+            <th mat-header-cell *matHeaderCellDef>Ext</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="extension" [(ngModel)]="form.extension" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="roomNumber">
+            <th mat-header-cell *matHeaderCellDef>Room number</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="roomNumber" [(ngModel)]="form.roomNumber" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="userSignOut">
+            <th mat-header-cell *matHeaderCellDef>User Sign out</th>
+            <td mat-cell *matCellDef="let row">
+              <button
+                class="signature-dropzone"
+                type="button"
+                [class.dragging]="userSignature.isDragging"
+                (click)="userSignatureInput.click()"
+                (dragover)="handleSignatureDragOver(userSignature, $event)"
+                (dragleave)="handleSignatureDragLeave(userSignature, $event)"
+                (drop)="handleSignatureDrop(userSignature, $event)"
+              >
+                @if (userSignature.previewUrl) {
+                  <img [src]="userSignature.previewUrl" alt="User signature preview" />
+                } @else if (userSignature.fileName) {
+                  <span>{{ userSignature.fileName }}</span>
+                } @else {
+                  <span>Drop signature</span>
+                }
+              </button>
+              <input
+                #userSignatureInput
+                class="signature-input"
+                type="file"
+                accept="image/*,application/pdf"
+                (change)="uploadSignature(userSignature, $event)"
+              />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="storesOfficialName">
+            <th mat-header-cell *matHeaderCellDef>Stores Official Name</th>
+            <td mat-cell *matCellDef="let row">
+              <mat-form-field appearance="outline">
+                <input matInput name="storesOfficialName" [(ngModel)]="form.storesOfficialName" />
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="storesOfficialSignOut">
+            <th mat-header-cell *matHeaderCellDef>Stores official Sign out</th>
+            <td mat-cell *matCellDef="let row">
+              <button
+                class="signature-dropzone"
+                type="button"
+                [class.dragging]="storesOfficialSignature.isDragging"
+                (click)="storesOfficialSignatureInput.click()"
+                (dragover)="handleSignatureDragOver(storesOfficialSignature, $event)"
+                (dragleave)="handleSignatureDragLeave(storesOfficialSignature, $event)"
+                (drop)="handleSignatureDrop(storesOfficialSignature, $event)"
+              >
+                @if (storesOfficialSignature.previewUrl) {
+                  <img [src]="storesOfficialSignature.previewUrl" alt="Stores official signature preview" />
+                } @else if (storesOfficialSignature.fileName) {
+                  <span>{{ storesOfficialSignature.fileName }}</span>
+                } @else {
+                  <span>Drop signature</span>
+                }
+              </button>
+              <input
+                #storesOfficialSignatureInput
+                class="signature-input"
+                type="file"
+                accept="image/*,application/pdf"
+                (change)="uploadSignature(storesOfficialSignature, $event)"
+              />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="comment">
+            <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
+              <strong>Comment:(User name and surname of Technician signed above, also accesories if available)</strong>
+              <mat-form-field appearance="outline" class="comment-field">
+                <textarea matInput rows="3" name="comment" [(ngModel)]="form.comment"></textarea>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: commentColumns" class="comment-row"></tr>
+        </table>
+      </div>
+
+      @if (saveMessage) {
+        <p class="save-message">{{ saveMessage }}</p>
+      }
+
+      <div class="form-actions">
+        <button mat-raised-button color="primary" type="button" [disabled]="isSaving" (click)="saveRegister()">
+          {{ isSaving ? 'Saving' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</main>

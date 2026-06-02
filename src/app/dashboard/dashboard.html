@@ -14,6 +14,8 @@
         <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
           View assets approval form
         </button>
+        <a routerLink="/register">Register</a>
+        <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
       } @else {
         <a routerLink="/requests">Request</a>
       }
@@ -165,18 +167,40 @@
           <span class="material-chip">QTS aware</span>
         </div>
 
-        <form class="request-form">
+        <form class="request-form" #adminRequestForm="ngForm" (ngSubmit)="saveAdminRequest()">
+          <mat-form-field appearance="outline">
+            <mat-label>Reference number</mat-label>
+            <input
+              matInput
+              required
+              name="referenceNumber"
+              [(ngModel)]="adminRequest.referenceNumber"
+              maxlength="8"
+              pattern="^(SR|IR|sr|ir)[0-9]{6}$"
+              placeholder="SR123456 or IR123456"
+              aria-label="Reference number"
+            />
+          </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Requester</mat-label>
-            <input matInput value="L. Mokoena" aria-label="Requester" />
+            <input matInput required name="requester" [(ngModel)]="adminRequest.requester" aria-label="Requester" />
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Department</mat-label>
-            <input matInput value="Public Works: Facilities" aria-label="Department" />
+            <input matInput required name="department" [(ngModel)]="adminRequest.department" aria-label="Department" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Sub-directorate</mat-label>
+            <input
+              matInput
+              name="subDirectorate"
+              [(ngModel)]="adminRequest.subDirectorate"
+              aria-label="Sub-directorate"
+            />
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Asset type</mat-label>
-            <mat-select value="Laptop" aria-label="Asset type">
+            <mat-select required name="assetType" [(ngModel)]="adminRequest.assetType" aria-label="Asset type">
               <mat-option value="Laptop">Laptop</mat-option>
               <mat-option value="Monitor">Monitor</mat-option>
               <mat-option value="Printer">Printer - route to QTS</mat-option>
@@ -185,8 +209,24 @@
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Justification</mat-label>
-            <textarea matInput aria-label="Justification">Replacement equipment required for approved field inspection duties.</textarea>
+            <textarea
+              matInput
+              name="justification"
+              [(ngModel)]="adminRequest.justification"
+              aria-label="Justification"
+            ></textarea>
           </mat-form-field>
+          @if (adminRequestMessage()) {
+            <p class="request-save-message">{{ adminRequestMessage() }}</p>
+          }
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="adminRequestForm.invalid || isSavingAdminRequest()"
+          >
+            {{ isSavingAdminRequest() ? 'Saving request' : 'Save request' }}
+          </button>
         </form>
       </article>
 

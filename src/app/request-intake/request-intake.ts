@@ -112,15 +112,9 @@ export class RequestIntake implements OnDestroy {
     this.intraRequest.referenceNumber = value;
   }
 
-  protected updateCallReference(value: string): void {
-    this.intraRequest.callReference = value;
-    this.referenceNumber = value;
-    this.intraRequest.referenceNumber = value;
-  }
-
   protected saveIntraRequest(): void {
     this.saveMessage = '';
-    const cleanReference = this.intraRequest.callReference.trim() || this.referenceNumber.trim();
+    const cleanReference = this.referenceNumber.trim();
     const destinationSignatureDate = this.formatDate(this.destinationSignatureDate);
     this.updateReferenceNumber(cleanReference);
     this.intraRequest.referenceNumber = cleanReference;

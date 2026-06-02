@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { AssetsApproval } from '../assets-approval/assets-approval';
@@ -9,7 +9,7 @@ import { TechnicianRequestDetails, TechnicianRequestStatus, TechnicianService } 
 
 @Component({
   selector: 'app-technician',
-  imports: [AssetsApproval, FormsModule, MatButtonModule],
+  imports: [AssetsApproval, FormsModule, MatButtonModule, RouterLink],
   templateUrl: './technician.html',
   styleUrl: './technician.scss',
 })
