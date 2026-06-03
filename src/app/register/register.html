@@ -109,7 +109,7 @@
             </thead>
             <tbody>
               @for (record of records; track record.id) {
-                <tr>
+                <tr class="record-detail-row">
                   <td>{{ record.dateOut }}</td>
                   <td>{{ record.itemDescription }}</td>
                   <td>{{ record.serialNumber }}</td>
@@ -125,16 +125,17 @@
                       <span>{{ signatureLabel(record.userSignOut) }}</span>
                     }
                   </td>
-                  <td>
-                    <mat-form-field appearance="outline">
+                  <td class="stores-official-cell">
+                    <mat-form-field appearance="outline" class="stores-official-field">
                       <input
                         matInput
                         name="storesOfficialName{{ record.id }}"
+                        aria-label="Stores official name"
                         [(ngModel)]="stateFor(record).storesOfficialName"
                       />
                     </mat-form-field>
                   </td>
-                  <td>
+                  <td class="stores-signature-cell">
                     @if (signaturePreview(record.storesOfficialSignOut)) {
                       <img class="record-signature" [src]="signaturePreview(record.storesOfficialSignOut)" alt="Stores official signature" />
                     } @else if (record.storesOfficialSignOut) {
@@ -166,7 +167,7 @@
                       />
                       <button
                         mat-raised-button
-                        color="primary"
+                        class="record-sign-button"
                         type="button"
                         [disabled]="stateFor(record).isSaving"
                         (click)="signStoresOfficial(record)"
@@ -177,6 +178,12 @@
                         <p class="row-message">{{ stateFor(record).message }}</p>
                       }
                     }
+                  </td>
+                </tr>
+                <tr class="record-comment-row">
+                  <td [attr.colspan]="commentColumnSpan">
+                    <strong>Comment:</strong>
+                    <span>{{ record.comment || 'No comment captured' }}</span>
                   </td>
                 </tr>
               }

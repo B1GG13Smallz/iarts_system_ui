@@ -53,7 +53,7 @@
   <section class="workspace">
     @if (activeView() === 'assetsApproval') {
       <section class="embedded-assets-approval">
-        <app-assets-approval />
+        <app-assets-approval [embedded]="true" />
       </section>
     } @else {
       <header class="topbar">

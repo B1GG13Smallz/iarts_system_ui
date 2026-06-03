@@ -62,7 +62,7 @@
   <section class="workspace">
     @if (activeView() === 'assetsApproval') {
       <section class="embedded-assets-approval">
-        <app-assets-approval />
+        <app-assets-approval [embedded]="true" />
       </section>
     } @else {
     <header class="page-header">
@@ -243,9 +243,9 @@
                 </td>
               </tr>
             </table>
-            @if (saveMessage) {
-              <p class="save-message">{{ saveMessage }}</p>
-            }
+            <p class="save-message" [class.has-message]="saveMessage" aria-live="polite">
+              {{ saveMessage }}
+            </p>
             <div class="step-actions">
               <button mat-stroked-button matStepperPrevious type="button">Back</button>
               <button mat-raised-button color="primary" type="button" [disabled]="isSaving" (click)="saveIntraRequest()">

@@ -21,6 +21,15 @@ button {
   min-height: 100vh;
 }
 
+.assets-shell.embedded {
+  display: block;
+  min-height: 0;
+
+  .workspace {
+    padding: 0;
+  }
+}
+
 .sidebar {
   position: sticky;
   top: 0;

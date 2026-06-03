@@ -372,10 +372,16 @@ nav {
 .save-message {
   margin: 0;
   border-radius: 8px;
+  min-height: 41px;
   padding: 10px 12px;
   background: #fff0e3;
   color: #8a3f0d;
   font-weight: 700;
+  visibility: hidden;
+
+  &.has-message {
+    visibility: visible;
+  }
 }
 
 @media (max-width: 860px) {

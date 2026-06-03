@@ -36,6 +36,7 @@ interface SignatureUploadState {
   styleUrl: './assets-approval.scss',
 })
 export class AssetsApproval implements OnInit, OnDestroy {
+  @Input() embedded = false;
   @Input() mode: 'approval' | 'return' = 'approval';
   protected readonly requests = signal<IntraRequestRecord[]>([]);
   protected readonly selectedRequestId = signal(0);
@@ -125,6 +126,10 @@ export class AssetsApproval implements OnInit, OnDestroy {
 
   protected session(): AuthSession | null {
     return this.authService.currentSession();
+  }
+
+  protected isStoreroom(): boolean {
+    return this.authService.hasRole('ICT_STOREROOM');
   }
 
   protected logout(): void {

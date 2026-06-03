@@ -255,7 +255,7 @@ nav {
 
 .records-table {
   width: 100%;
-  min-width: 1640px;
+  min-width: 1780px;
   border-collapse: collapse;
   table-layout: fixed;
   background: #ffffff;
@@ -289,7 +289,86 @@ nav {
   }
 
   mat-form-field {
-    width: 220px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  th:nth-child(10),
+  td:nth-child(10) {
+    width: 190px;
+  }
+
+  th:nth-child(11),
+  td:nth-child(11) {
+    width: 210px;
+  }
+}
+
+.stores-official-cell,
+.stores-signature-cell {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.stores-official-field {
+  display: block;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.stores-signature-cell {
+  button[mat-raised-button] {
+    width: 100%;
+    min-height: 38px;
+  }
+}
+
+.record-sign-button {
+  --mdc-protected-button-container-color: transparent;
+  --mdc-protected-button-label-text-color: #ffffff;
+
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
+  transition:
+    box-shadow 160ms ease,
+    filter 160ms ease,
+    transform 160ms ease;
+
+  &:hover {
+    filter: saturate(1.08) brightness(1.02);
+    box-shadow: 0 18px 34px rgba(189, 82, 13, 0.32);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 10px 22px rgba(189, 82, 13, 0.26);
+  }
+
+  &:disabled {
+    filter: grayscale(0.25);
+    opacity: 0.62;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.record-comment-row td {
+  background: #fffaf6;
+  color: #3a2f28;
+  line-height: 1.5;
+
+  strong {
+    margin-right: 6px;
+  }
+
+  span {
+    overflow-wrap: anywhere;
   }
 }
 
@@ -328,7 +407,7 @@ nav {
 }
 
 .signature-dropzone.compact {
-  width: 132px;
+  width: 100%;
   min-height: 62px;
   margin-bottom: 8px;
 }
