@@ -10,26 +10,43 @@
 
     <nav>
       @if (isAdmin()) {
-        <button type="button" [class.active]="activeView() === 'dashboard'" (click)="showDashboard()">Dashboard</button>
-        <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
-          View assets approval form
+        <button type="button" [class.active]="activeView() === 'dashboard'" (click)="showDashboard()">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">dashboard</span>
+          <span class="sidebar-label">Dashboard</span>
         </button>
-        <a routerLink="/register">Register</a>
-        <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
+        <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+          <span class="sidebar-label">View assets approval form</span>
+        </button>
+        <a routerLink="/register">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+          <span class="sidebar-label">Register</span>
+        </a>
+        <a routerLink="/permission-to-remove-equipment">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
+          <span class="sidebar-label">Permission to remove equipment</span>
+        </a>
       } @else {
-        <a routerLink="/requests">Request</a>
+        <a routerLink="/requests">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">send</span>
+          <span class="sidebar-label">Request</span>
+        </a>
       }
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">
       @if (session(); as currentSession) {
         <div class="credentials-card">
+          <span class="material-symbols-outlined credentials-icon" aria-hidden="true">account_circle</span>
           <span class="eyebrow">Signed in</span>
           <strong>{{ currentSession.username }}</strong>
           <small>{{ currentSession.roles.join(', ') }}</small>
         </div>
       }
-      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+      <button class="logout-button" type="button" (click)="logout()">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">logout</span>
+        <span class="sidebar-label">Logout</span>
+      </button>
     </section>
   </aside>
 

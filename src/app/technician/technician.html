@@ -10,6 +10,15 @@
 
     <nav>
       <button type="button" [class.active]="activeView() === 'technician'" (click)="showTechnician()">Technician</button>
+      <button type="button" [class.active]="activeView() === 'submittedRequests'" (click)="showSubmittedRequests()">
+        Submitted request forms
+      </button>
+      <button type="button" [class.active]="activeView() === 'laptopPolicy'" (click)="showLaptopPolicy()">
+        Laptop policy acceptance
+      </button>
+      <button type="button" [class.active]="activeView() === 'intraRequestReview'" (click)="showIntraRequestReview()">
+        INTRA request review
+      </button>
       <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
         View assets approval form
       </button>
@@ -33,6 +42,18 @@
     @if (activeView() === 'assetsApproval') {
       <section class="embedded-assets-approval">
         <app-assets-approval />
+      </section>
+    } @else if (activeView() === 'submittedRequests') {
+      <section class="embedded-submitted-requests">
+        <app-request-status-page />
+      </section>
+    } @else if (activeView() === 'laptopPolicy') {
+      <section class="embedded-laptop-policy">
+        <app-laptop-policy-acceptance />
+      </section>
+    } @else if (activeView() === 'intraRequestReview') {
+      <section class="embedded-intra-request-review">
+        <app-request-intake />
       </section>
     } @else if (activeView() === 'register') {
       <section class="embedded-register">

@@ -9,24 +9,25 @@
     </div>
 
     <nav>
-      <a routerLink="/requests">Request</a>
-      <a routerLink="/request-status">Request status</a>
-      <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
-      <a routerLink="/assets-approval" class="active">View assets approval form</a>
-      <a routerLink="/asset-return">Asset return</a>
-      <a routerLink="/register">Register</a>
-      <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
+      <a routerLink="/assets-approval" class="active">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+        <span class="sidebar-label">Assets approval</span>
+      </a>
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">
       @if (session(); as currentSession) {
         <div class="credentials-card">
+          <span class="material-symbols-outlined credentials-icon" aria-hidden="true">account_circle</span>
           <span class="eyebrow">Signed in</span>
           <strong>{{ currentSession.username }}</strong>
           <small>{{ currentSession.roles.join(', ') }}</small>
         </div>
       }
-      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+      <button class="logout-button" type="button" (click)="logout()">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">logout</span>
+        <span class="sidebar-label">Logout</span>
+      </button>
     </section>
   </aside>
 
@@ -359,12 +360,12 @@
           <footer class="approval-footer">
             <button
               mat-raised-button
-              color="primary"
+              class="approval-save-button"
               type="button"
               [disabled]="isSavingApproval"
               (click)="saveApproval()"
             >
-              Save approval
+              Save
             </button>
           </footer>
         </div>

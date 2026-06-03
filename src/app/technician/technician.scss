@@ -151,6 +151,86 @@ nav {
   }
 }
 
+.embedded-submitted-requests,
+.embedded-laptop-policy,
+.embedded-intra-request-review {
+  display: block;
+
+  ::ng-deep .status-shell,
+  ::ng-deep .policy-shell,
+  ::ng-deep .request-shell {
+    display: block;
+    min-height: 0;
+  }
+
+  ::ng-deep .status-shell > .sidebar,
+  ::ng-deep .policy-shell > .sidebar,
+  ::ng-deep .request-shell > .sidebar {
+    display: none;
+  }
+
+  ::ng-deep .status-shell > .workspace,
+  ::ng-deep .policy-shell > .workspace,
+  ::ng-deep .request-shell > .workspace {
+    padding: 0;
+  }
+}
+
+.embedded-submitted-requests,
+.embedded-intra-request-review {
+  ::ng-deep .form-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    background: #ffffff;
+
+    th,
+    td {
+      border: 1px solid #d7c5b6;
+      padding: 10px;
+      vertical-align: middle;
+    }
+
+    th {
+      background: linear-gradient(180deg, #fff0e3, #f4c49a);
+      color: #171717;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    td {
+      min-height: 44px;
+      color: #3a2f28;
+      font-weight: 700;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #d7c5b6;
+      border-radius: 6px;
+      padding: 9px 10px;
+      background: #fffaf6;
+      color: #171717;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+  }
+
+  ::ng-deep .label-cell {
+    width: 22%;
+    background: #fff0e3;
+  }
+
+  ::ng-deep .reason-heading {
+    background: #f4c49a;
+    font-weight: 800;
+  }
+}
+
 .embedded-register {
   display: block;
 }
@@ -294,17 +374,22 @@ nav {
 
   th,
   td {
-    border: 1px solid #cbd8e4;
+    border: 1px solid #d7c5b6;
     padding: 10px;
-    text-align: left;
-    vertical-align: top;
+    vertical-align: middle;
   }
 
   th {
-    background: #dcebf5;
-    color: #10243c;
-    font-size: 0.78rem;
-    text-transform: uppercase;
+    background: linear-gradient(180deg, #fff0e3, #f4c49a);
+    color: #171717;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  td {
+    min-height: 44px;
+    color: #3a2f28;
+    font-weight: 700;
   }
 }
 
@@ -327,23 +412,31 @@ nav {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  background: #ffffff;
 
   th,
   td {
-    border: 1px solid #8ea4b8;
+    border: 1px solid #d7c5b6;
     padding: 10px;
-    vertical-align: top;
+    vertical-align: middle;
   }
 
   th {
-    background: #dcebf5;
-    color: #10243c;
-    text-align: left;
+    background: linear-gradient(180deg, #fff0e3, #f4c49a);
+    color: #171717;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  td {
+    min-height: 44px;
+    color: #3a2f28;
+    font-weight: 700;
   }
 
   td:first-child {
     width: 28%;
-    background: #f7fafc;
+    background: #fff0e3;
     font-weight: 800;
   }
 }

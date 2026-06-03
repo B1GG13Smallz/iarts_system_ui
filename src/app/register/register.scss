@@ -205,10 +205,10 @@ nav {
 
 .table-wrap {
   overflow-x: auto;
-  border: 1px solid #d7e0ea;
+  border: 1px solid #d7c5b6;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 16px 40px rgba(14, 42, 71, 0.07);
+  box-shadow: 0 16px 38px rgba(64, 45, 31, 0.09);
 }
 
 .records-wrap {
@@ -218,24 +218,38 @@ nav {
 .register-table {
   width: 100%;
   min-width: 1840px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #ffffff;
 
   th {
-    background: #dcebf5;
-    color: #10243c;
-    font-size: 0.78rem;
+    background: linear-gradient(180deg, #fff0e3, #f4c49a);
+    color: #171717;
     font-weight: 800;
+    text-align: center;
   }
 
   th,
   td {
-    border-right: 1px solid #d7e0ea;
+    border: 1px solid #d7c5b6;
     padding: 10px;
-    vertical-align: top;
+    vertical-align: middle;
+  }
+
+  td {
+    min-height: 44px;
+    color: #3a2f28;
+    font-weight: 700;
   }
 
   mat-form-field {
     width: 100%;
     min-width: 140px;
+  }
+
+  input,
+  textarea {
+    color: #171717;
   }
 }
 
@@ -243,20 +257,27 @@ nav {
   width: 100%;
   min-width: 1640px;
   border-collapse: collapse;
+  table-layout: fixed;
+  background: #ffffff;
 
   th {
-    background: #2b2b2b;
-    color: #fff6ef;
-    font-size: 0.76rem;
-    text-transform: uppercase;
+    background: linear-gradient(180deg, #fff0e3, #f4c49a);
+    color: #171717;
+    font-weight: 800;
+    text-align: center;
   }
 
   th,
   td {
     border: 1px solid #d7c5b6;
     padding: 10px;
-    text-align: left;
-    vertical-align: top;
+    vertical-align: middle;
+  }
+
+  td {
+    min-height: 44px;
+    color: #3a2f28;
+    font-weight: 700;
   }
 
   tbody tr {
@@ -347,6 +368,40 @@ nav {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+
+  button {
+    --mdc-protected-button-container-color: transparent;
+    --mdc-protected-button-label-text-color: #ffffff;
+
+    min-height: 46px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
+    transition:
+      box-shadow 160ms ease,
+      filter 160ms ease,
+      transform 160ms ease;
+
+    &:hover {
+      filter: saturate(1.08) brightness(1.02);
+      box-shadow: 0 18px 34px rgba(189, 82, 13, 0.32);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 22px rgba(189, 82, 13, 0.26);
+    }
+
+    &:disabled {
+      filter: grayscale(0.25);
+      opacity: 0.62;
+      transform: none;
+      box-shadow: none;
+    }
+  }
 }
 
 @media (max-width: 860px) {

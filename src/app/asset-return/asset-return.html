@@ -9,23 +9,48 @@
     </div>
 
     <nav>
-      <a routerLink="/requests">Request</a>
-      <a routerLink="/request-status">Request status</a>
-      <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
-      <a routerLink="/assets-approval">View assets approval form</a>
-      <a routerLink="/asset-return" class="active">Asset return</a>
-      <a routerLink="/register">Register</a>
+      <a routerLink="/requests">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">send</span>
+        <span class="sidebar-label">Request</span>
+      </a>
+      <a routerLink="/request-status">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">fact_check</span>
+        <span class="sidebar-label">Request status</span>
+      </a>
+      <a routerLink="/laptop-policy-acceptance">
+        <span class="sidebar-icon-pair" aria-hidden="true">
+          <span class="material-symbols-outlined">laptop_mac</span>
+          <span class="material-symbols-outlined">assignment_turned_in</span>
+        </span>
+        <span class="sidebar-label">Laptop policy acceptance form</span>
+      </a>
+      <a routerLink="/assets-approval">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+        <span class="sidebar-label">View assets approval form</span>
+      </a>
+      <a routerLink="/asset-return" class="active">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">keyboard_return</span>
+        <span class="sidebar-label">Asset return</span>
+      </a>
+      <a routerLink="/register">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+        <span class="sidebar-label">Register</span>
+      </a>
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">
       @if (session(); as currentSession) {
         <div class="credentials-card">
+          <span class="material-symbols-outlined credentials-icon" aria-hidden="true">account_circle</span>
           <span class="eyebrow">Signed in</span>
           <strong>{{ currentSession.username }}</strong>
           <small>{{ currentSession.roles.join(', ') }}</small>
         </div>
       }
-      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+      <button class="logout-button" type="button" (click)="logout()">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">logout</span>
+        <span class="sidebar-label">Logout</span>
+      </button>
     </section>
   </aside>
 

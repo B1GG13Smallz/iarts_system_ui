@@ -1,8 +1,8 @@
 :host {
   display: block;
   min-height: 100vh;
-  color: #172033;
-  background: #eef3f8;
+  color: #171717;
+  background: #f3eee8;
 }
 
 button,
@@ -167,10 +167,16 @@ nav {
 .topbar {
   justify-content: space-between;
   gap: 20px;
+  border: 1px solid #d7c5b6;
+  border-radius: 8px;
   margin-bottom: 22px;
+  padding: 18px;
+  background: #fff6ef;
+  box-shadow: 0 16px 38px rgba(64, 45, 31, 0.09);
 
   h1 {
     margin: 4px 0 0;
+    color: #171717;
     font-size: clamp(1.8rem, 3vw, 2.55rem);
     letter-spacing: 0;
   }
@@ -181,7 +187,7 @@ nav {
 }
 
 .eyebrow {
-  color: #4f6d8a;
+  color: #c96014;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -198,10 +204,10 @@ nav {
 .stat-card,
 .panel,
 .availability-panel {
-  border: 1px solid #d7e0ea;
+  border: 1px solid #d7c5b6;
   border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 16px 40px rgba(14, 42, 71, 0.07);
+  background: #fff6ef;
+  box-shadow: 0 16px 38px rgba(64, 45, 31, 0.09);
 }
 
 .stat-card {
@@ -210,13 +216,13 @@ nav {
   span,
   small {
     display: block;
-    color: #607894;
+    color: #6b6864;
   }
 
   strong {
     display: block;
     margin: 8px 0;
-    color: #10243c;
+    color: #171717;
     font-size: 2rem;
   }
 }
@@ -231,7 +237,7 @@ nav {
 .availability-admin-item {
   display: grid;
   gap: 12px;
-  border-top: 1px solid #edf2f7;
+  border-top: 1px solid #d7c5b6;
   padding-top: 14px;
 }
 
@@ -243,7 +249,8 @@ nav {
   div {
     border-radius: 8px;
     padding: 13px;
-    background: #f7fafc;
+    background: #fffaf6;
+    border: 1px solid #d7c5b6;
   }
 
   span,
@@ -252,7 +259,7 @@ nav {
   }
 
   span {
-    color: #607894;
+    color: #8a3f0d;
     font-size: 0.76rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -260,7 +267,7 @@ nav {
 
   strong {
     margin-top: 6px;
-    color: #172033;
+    color: #3a2f28;
   }
 }
 
@@ -268,14 +275,44 @@ nav {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+
+  button {
+    --mdc-protected-button-container-color: transparent;
+    --mdc-protected-button-label-text-color: #ffffff;
+    --mdc-outlined-button-label-text-color: #ffffff;
+    --mdc-outlined-button-outline-color: transparent;
+
+    min-height: 46px;
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
+    transition:
+      box-shadow 160ms ease,
+      filter 160ms ease,
+      transform 160ms ease;
+
+    &:hover {
+      filter: saturate(1.08) brightness(1.02);
+      box-shadow: 0 18px 34px rgba(189, 82, 13, 0.32);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 22px rgba(189, 82, 13, 0.26);
+    }
+  }
 }
 
 .empty-state {
   margin: 0;
   border-radius: 8px;
   padding: 13px;
-  background: #f7fafc;
-  color: #607894;
+  background: #fff0e3;
+  color: #8a3f0d;
   font-weight: 700;
 }
 
@@ -284,8 +321,8 @@ nav {
   width: max-content;
   border-radius: 999px;
   padding: 6px 10px;
-  background: #dff4ff;
-  color: #075985;
+  background: #fff0e3;
+  color: #8a3f0d;
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -312,27 +349,48 @@ nav {
 
   h2 {
     margin: 4px 0 0;
+    color: #171717;
     font-size: 1.15rem;
   }
 }
 
 .primary,
 .ghost {
+  --mdc-protected-button-container-color: transparent;
+  --mdc-protected-button-label-text-color: #ffffff;
+  --mdc-outlined-button-label-text-color: #ffffff;
+  --mdc-outlined-button-outline-color: transparent;
+
+  min-height: 46px;
+  border: 0;
   border-radius: 8px;
   padding: 10px 14px;
-  font-weight: 800;
-}
-
-.primary {
-  border: 1px solid #0e7490;
-  background: #0e7490;
+  background: linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
   color: #ffffff;
-}
+  font-weight: 800;
+  box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
+  transition:
+    box-shadow 160ms ease,
+    filter 160ms ease,
+    transform 160ms ease;
 
-.ghost {
-  border: 1px solid #cbd8e4;
-  background: #ffffff;
-  color: #1e3b58;
+  &:hover {
+    filter: saturate(1.08) brightness(1.02);
+    box-shadow: 0 18px 34px rgba(189, 82, 13, 0.32);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 10px 22px rgba(189, 82, 13, 0.26);
+  }
+
+  &:disabled {
+    filter: grayscale(0.25);
+    opacity: 0.62;
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 .compact {
@@ -347,7 +405,7 @@ nav {
   label {
     display: grid;
     gap: 6px;
-    color: #4d6176;
+    color: #3a2f28;
     font-size: 0.84rem;
     font-weight: 800;
   }
@@ -356,11 +414,20 @@ nav {
   select,
   textarea {
     width: 100%;
-    border: 1px solid #cfdbe7;
+    border: 1px solid #d7c5b6;
     border-radius: 8px;
     padding: 11px 12px;
-    color: #1e2f42;
-    background: #fbfdff;
+    color: #171717;
+    background: #fffaf6;
+  }
+
+  .mat-mdc-form-field {
+    --mdc-outlined-text-field-outline-color: #d7c5b6;
+    --mdc-outlined-text-field-hover-outline-color: #f58220;
+    --mdc-outlined-text-field-focus-outline-color: #bd520d;
+    --mdc-outlined-text-field-input-text-color: #171717;
+    --mdc-outlined-text-field-container-color: #fffaf6;
+    --mat-form-field-container-color: #fffaf6;
   }
 
   textarea {
@@ -369,7 +436,16 @@ nav {
   }
 
   button {
+    --mdc-protected-button-container-color: transparent;
+    --mdc-protected-button-label-text-color: #ffffff;
+
     justify-self: start;
+    min-height: 46px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
   }
 }
 
@@ -377,8 +453,8 @@ nav {
   margin: 0;
   border-radius: 8px;
   padding: 10px 12px;
-  background: #eef7ff;
-  color: #1e3b58;
+  background: #fff0e3;
+  color: #8a3f0d;
   font-size: 0.84rem;
   font-weight: 800;
 }
@@ -392,9 +468,10 @@ nav {
 .stock-list div,
 .approval-list div,
 .incident-card {
+  border: 1px solid #d7c5b6;
   border-radius: 8px;
   padding: 13px;
-  background: #f7fafc;
+  background: #fffaf6;
 }
 
 .stock-list div {
@@ -407,7 +484,7 @@ nav {
   }
 
   small {
-    color: #64798d;
+    color: #6b6864;
   }
 
   em {
@@ -435,42 +512,60 @@ nav {
 .table {
   display: grid;
   overflow-x: auto;
+  border: 1px solid #d7c5b6;
+  border-radius: 8px;
+  background: #ffffff;
 }
 
 .table-row {
   display: grid;
   grid-template-columns: 0.8fr 1fr 1fr 1.2fr 0.7fr;
   min-width: 760px;
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid #d7c5b6;
 
   span,
   strong,
   em {
+    border-right: 1px solid #d7c5b6;
     padding: 12px 10px;
+    color: #3a2f28;
+    font-weight: 700;
+  }
+
+  span:last-child,
+  strong:last-child,
+  em:last-child {
+    border-right: 0;
   }
 
   small {
     display: block;
     margin-top: 4px;
-    color: #6b7f92;
+    color: #6b6864;
     font-size: 0.75rem;
     font-weight: 700;
   }
 
   em {
-    color: #075985;
+    color: #8a3f0d;
     font-style: normal;
     font-weight: 800;
   }
 }
 
 .table-head {
-  border-radius: 8px;
-  background: #f1f6fb;
-  color: #4e667c;
+  background: linear-gradient(180deg, #fff0e3, #f4c49a);
+  color: #171717;
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
+
+  span,
+  strong,
+  em {
+    color: #171717;
+    font-weight: 800;
+  }
 }
 
 .queue-pagination {
@@ -481,7 +576,7 @@ nav {
   margin-top: 12px;
 
   > span {
-    color: #607894;
+    color: #6b6864;
     font-size: 0.82rem;
     font-weight: 800;
   }
@@ -506,12 +601,12 @@ nav {
     height: 42px;
     place-items: center;
     border-radius: 8px;
-    background: #e0f2fe;
-    color: #075985;
+    background: #fff0e3;
+    color: #8a3f0d;
   }
 
   small {
-    color: #65798e;
+    color: #6b6864;
   }
 }
 
@@ -523,13 +618,13 @@ nav {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #2f4358;
+    color: #3a2f28;
   }
 
   input {
     width: 18px;
     height: 18px;
-    accent-color: #0e7490;
+    accent-color: #f58220;
   }
 }
 
@@ -549,7 +644,7 @@ nav {
 
   p {
     margin: 0;
-    color: #65798e;
+    color: #6b6864;
     line-height: 1.5;
   }
 }
@@ -559,7 +654,7 @@ nav {
   gap: 10px;
   margin: 0;
   padding-left: 20px;
-  color: #3c5268;
+  color: #3a2f28;
 }
 
 @media (max-width: 1180px) {

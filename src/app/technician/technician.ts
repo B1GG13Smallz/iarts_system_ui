@@ -5,17 +5,31 @@ import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { AssetsApproval } from '../assets-approval/assets-approval';
 import { AuthService, AuthSession } from '../auth/auth';
+import { LaptopPolicyAcceptance } from '../laptop-policy-acceptance/laptop-policy-acceptance';
 import { Register, RegisterPrefill } from '../register/register';
+import { RequestIntake } from '../request-intake/request-intake';
+import { RequestStatusPage } from '../request-status/request-status-page';
 import { TechnicianRequestDetails, TechnicianRequestStatus, TechnicianService } from './technician.service';
 
 @Component({
   selector: 'app-technician',
-  imports: [AssetsApproval, FormsModule, MatButtonModule, Register, RouterLink],
+  imports: [
+    AssetsApproval,
+    FormsModule,
+    LaptopPolicyAcceptance,
+    MatButtonModule,
+    Register,
+    RequestIntake,
+    RequestStatusPage,
+    RouterLink,
+  ],
   templateUrl: './technician.html',
   styleUrl: './technician.scss',
 })
 export class Technician {
-  protected readonly activeView = signal<'technician' | 'assetsApproval' | 'register'>('technician');
+  protected readonly activeView = signal<
+    'technician' | 'submittedRequests' | 'laptopPolicy' | 'intraRequestReview' | 'assetsApproval' | 'register'
+  >('technician');
   protected referenceNumber = '';
   protected readonly result = signal<TechnicianRequestDetails | null>(null);
   protected readonly message = signal('');
@@ -56,6 +70,18 @@ export class Technician {
 
   protected showTechnician(): void {
     this.activeView.set('technician');
+  }
+
+  protected showSubmittedRequests(): void {
+    this.activeView.set('submittedRequests');
+  }
+
+  protected showLaptopPolicy(): void {
+    this.activeView.set('laptopPolicy');
+  }
+
+  protected showIntraRequestReview(): void {
+    this.activeView.set('intraRequestReview');
   }
 
   protected showAssetsApproval(): void {

@@ -16,6 +16,22 @@ body {
   background: #f3eee8;
 }
 
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+}
+
 :root {
   --iarts-black: #171717;
   --iarts-charcoal: #2b2b2b;
@@ -68,11 +84,38 @@ body {
 .sidebar nav a,
 .sidebar nav button,
 .logout-button {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
   border: 1px solid transparent !important;
   border-left: 3px solid transparent !important;
   border-radius: 8px !important;
   color: #f2ede8 !important;
   font-weight: 800;
+}
+
+.sidebar-icon,
+.sidebar-icon-pair {
+  flex: 0 0 auto;
+}
+
+.sidebar-icon {
+  color: #f7a452;
+}
+
+.sidebar-icon-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #f7a452;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+}
+
+.sidebar-label {
+  min-width: 0;
 }
 
 .sidebar nav a.active,
@@ -87,8 +130,80 @@ body {
 }
 
 .credentials-card {
-  border-color: rgba(245, 130, 32, 0.28) !important;
-  background: rgba(255, 246, 239, 0.08) !important;
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+.credentials-card {
+  position: relative;
+  display: grid;
+  width: 66px;
+  min-height: 66px;
+  place-items: center;
+  padding: 0 !important;
+  cursor: default;
+
+  .eyebrow,
+  strong,
+  small {
+    position: absolute;
+    left: calc(100% + 12px);
+    z-index: 20;
+    width: max-content;
+    max-width: 230px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-6px);
+    transition:
+      opacity 160ms ease,
+      transform 160ms ease;
+  }
+
+  .eyebrow {
+    top: 0;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 12px 2px;
+    background: #2f2f2f;
+  }
+
+  strong {
+    top: 26px;
+    padding: 2px 12px;
+    background: #2f2f2f;
+  }
+
+  small {
+    top: 54px;
+    border-radius: 0 0 8px 8px;
+    padding: 2px 12px 10px;
+    background: #2f2f2f;
+    box-shadow: 0 14px 28px rgba(23, 23, 23, 0.24);
+  }
+
+  &:hover,
+  &:focus-within {
+    .eyebrow,
+    strong,
+    small {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+.credentials-icon {
+  position: static;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 0;
+  background: transparent;
+  color: #f7a452;
+
+  &.material-symbols-outlined {
+    font-size: 46px;
+  }
 }
 
 .workspace {

@@ -57,10 +57,12 @@
 }
 
 .availability-submit {
+  --mdc-protected-button-label-text-color: #ffffff;
+
   min-height: 46px;
   border-radius: 8px;
   background: linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
-  color: #16110d;
+  color: #ffffff;
   font-weight: 800;
   box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
   transition:

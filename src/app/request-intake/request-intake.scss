@@ -211,6 +211,14 @@ nav {
   border-radius: 8px;
   background: #fffaf6;
   box-shadow: 0 16px 38px rgba(64, 45, 31, 0.09);
+
+  ::ng-deep .mat-step-icon,
+  ::ng-deep .mat-step-icon-selected,
+  ::ng-deep .mat-step-icon-state-edit,
+  ::ng-deep .mat-step-icon-state-done {
+    background-color: #14532d;
+    color: #ffffff;
+  }
 }
 
 .step-content {
@@ -223,6 +231,43 @@ nav {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+
+  button {
+    --mdc-protected-button-container-color: transparent;
+    --mdc-protected-button-label-text-color: #ffffff;
+    --mdc-outlined-button-label-text-color: #ffffff;
+    --mdc-outlined-button-outline-color: transparent;
+
+    min-height: 46px;
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
+    transition:
+      box-shadow 160ms ease,
+      filter 160ms ease,
+      transform 160ms ease;
+
+    &:hover {
+      filter: saturate(1.08) brightness(1.02);
+      box-shadow: 0 18px 34px rgba(189, 82, 13, 0.32);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 22px rgba(189, 82, 13, 0.26);
+    }
+
+    &:disabled {
+      filter: grayscale(0.25);
+      opacity: 0.62;
+      transform: none;
+      box-shadow: none;
+    }
+  }
 }
 
 .form-table {

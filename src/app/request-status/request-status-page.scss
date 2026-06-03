@@ -194,31 +194,32 @@ nav {
 
   th,
   td {
-    border: 1px solid #8ea4b8;
+    border: 1px solid #d7c5b6;
     padding: 10px;
     vertical-align: middle;
   }
 
   th {
-    background: #dcebf5;
-    color: #10243c;
+    background: linear-gradient(180deg, #fff0e3, #f4c49a);
+    color: #171717;
     font-weight: 800;
     text-align: center;
   }
 
   td {
-    color: #263a4f;
+    min-height: 44px;
+    color: #3a2f28;
     font-weight: 700;
   }
 }
 
 .label-cell {
   width: 22%;
-  background: #f7fafc;
+  background: #fff0e3;
 }
 
 .reason-heading {
-  background: #f1f6fb;
+  background: #f4c49a;
   font-weight: 800;
 }
 
