@@ -25,6 +25,7 @@ export class Login {
   protected password = '';
   protected readonly loginError = signal('');
   protected readonly isSubmitting = signal(false);
+  protected readonly showPassword = signal(false);
 
   constructor(
     private readonly authService: AuthService,
@@ -48,5 +49,9 @@ export class Login {
         },
         error: () => this.loginError.set('Sign in failed. Check your username and password.'),
       });
+  }
+
+  protected togglePasswordVisibility(): void {
+    this.showPassword.update((visible) => !visible);
   }
 }

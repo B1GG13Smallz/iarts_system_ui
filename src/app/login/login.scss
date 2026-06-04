@@ -1,6 +1,8 @@
 :host {
   display: block;
+  height: 100vh;
   min-height: 100vh;
+  overflow: hidden;
   color: #171717;
   background:
     linear-gradient(135deg, rgba(245, 130, 32, 0.14), transparent 36%),
@@ -10,6 +12,7 @@
 .login-shell {
   display: grid;
   grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
+  height: 100vh;
   min-height: 100vh;
 }
 
@@ -19,8 +22,9 @@
   justify-content: center;
   gap: 32px;
   padding: 48px;
-  background: #fffaf6;
-  box-shadow: 20px 0 50px rgba(64, 45, 31, 0.1);
+  background:
+    url('/Login%20card.png') center / cover no-repeat,
+    #fff3e2;
 }
 
 .brand {
@@ -67,6 +71,7 @@
 .login-copy {
   h1 {
     margin: 8px 0 0;
+    color: #f58220;
     font-size: 2.25rem;
     line-height: 1.08;
     letter-spacing: 0;
@@ -78,22 +83,63 @@
   gap: 14px;
 
   mat-form-field {
-    --mdc-outlined-text-field-outline-color: #d7c5b6;
-    --mdc-outlined-text-field-hover-outline-color: #f58220;
-    --mdc-outlined-text-field-focus-outline-color: #c96014;
-    --mdc-outlined-text-field-label-text-color: #6b6864;
-    --mdc-outlined-text-field-focus-label-text-color: #c96014;
-    --mdc-outlined-text-field-input-text-color: #171717;
+    --mdc-outlined-text-field-container-color: #f8e6d8;
+    --mdc-outlined-text-field-outline-color: #7a421c;
+    --mdc-outlined-text-field-hover-outline-color: #4b2b16;
+    --mdc-outlined-text-field-focus-outline-color: #f58220;
+    --mdc-outlined-text-field-label-text-color: #f58220;
+    --mdc-outlined-text-field-focus-label-text-color: #f58220;
+    --mdc-outlined-text-field-input-text-color: #17110c;
+    --mdc-outlined-text-field-caret-color: #7a421c;
     --mdc-outlined-text-field-container-shape: 8px;
+    --mat-form-field-hover-state-layer-opacity: 0;
+    --mat-form-field-focus-state-layer-opacity: 0;
+
+    backdrop-filter: blur(2px);
   }
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    background:
+      linear-gradient(180deg, rgba(245, 130, 32, 0.18), rgba(23, 23, 23, 0.08)),
+      #f8e6d8;
+  }
+
+  ::ng-deep .mdc-floating-label,
+  ::ng-deep .mdc-floating-label--float-above {
+    color: #4b2b16 !important;
+    font-weight: 800;
+  }
+
+  ::ng-deep .mat-focused .mdc-floating-label {
+    color: #f58220 !important;
+  }
+
+  ::ng-deep .mat-mdc-form-field-hint {
+    color: #f58220;
+    font-weight: 800;
+  }
+}
+
+.password-toggle {
+  color: #7a421c;
+
+  &:hover {
+    color: #4b2b16;
+  }
+}
+
+.login-field-icon {
+  margin: 0 10px 0 2px;
+  color: #7a421c;
 }
 
 .login-error {
   margin: -2px 0 0;
   border-radius: 8px;
   padding: 10px 12px;
-  background: #fee2e2;
-  color: #991b1b;
+  border: 1px solid rgba(127, 29, 29, 0.26);
+  background: rgba(254, 226, 226, 0.84);
+  color: #7f1d1d;
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -102,18 +148,18 @@
   min-height: 48px;
   border-radius: 8px;
   background:
-    linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
-  color: #16110d;
+    linear-gradient(135deg, #fff2df 0%, #e7b77d 48%, #a9642a 100%);
+  color: #24130a;
   font-weight: 800;
-  box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
+  box-shadow: 0 14px 28px rgba(65, 37, 18, 0.2);
   transition:
     box-shadow 160ms ease,
     filter 160ms ease,
     transform 160ms ease;
 
   &:hover:not(:disabled) {
-    filter: saturate(1.08) brightness(1.02);
-    box-shadow: 0 18px 34px rgba(189, 82, 13, 0.32);
+    filter: saturate(1.06) brightness(1.04);
+    box-shadow: 0 18px 34px rgba(65, 37, 18, 0.3);
     transform: translateY(-1px);
   }
 
@@ -123,8 +169,8 @@
   }
 
   &:disabled {
-    background: #d7c5b6;
-    color: #6b6864;
+    background: rgba(255, 250, 246, 0.7);
+    color: rgba(43, 26, 16, 0.54);
     box-shadow: none;
   }
 }
@@ -134,11 +180,12 @@
   flex-direction: column;
   justify-content: end;
   min-width: 0;
+  min-height: 100vh;
   padding: 56px;
   background:
-    linear-gradient(180deg, rgba(245, 130, 32, 0.18), rgba(23, 23, 23, 0.08)),
+    linear-gradient(180deg, rgba(255, 250, 246, 0.12), rgba(23, 23, 23, 0.16)),
+    url('/ui_logo_no_orange.png') center / 100% 100% no-repeat,
     #f8e6d8;
-  border-left: 4px solid #f58220;
 
   h2 {
     max-width: 760px;

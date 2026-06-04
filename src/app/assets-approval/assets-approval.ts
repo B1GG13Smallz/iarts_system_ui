@@ -132,6 +132,10 @@ export class AssetsApproval implements OnInit, OnDestroy {
     return this.authService.hasRole('ICT_STOREROOM');
   }
 
+  protected canUseRequesteeNavigation(): boolean {
+    return !this.authService.hasRole('ASSET_MANAGEMENT');
+  }
+
   protected logout(): void {
     this.authService.logout();
     this.router.navigateByUrl('/login');

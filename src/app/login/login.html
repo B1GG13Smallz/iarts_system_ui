@@ -1,41 +1,49 @@
 <main class="login-shell">
   <section class="login-panel" aria-labelledby="login-title">
-    <div class="brand">
-      <span class="brand-mark">IA</span>
-      <div>
-        <strong>IARTS</strong>
-        <span>ICT Assets Request and Tracking</span>
-      </div>
-    </div>
-
     <div class="login-copy">
-      <span class="eyebrow">Department of Public Works</span>
       <h1 id="login-title">Sign in to IARTS</h1>
     </div>
 
     <form class="login-form" (ngSubmit)="submitLogin()" #loginForm="ngForm">
       <mat-form-field appearance="outline">
-        <mat-label>Username</mat-label>
+        <span class="material-symbols-outlined login-field-icon" matPrefix aria-hidden="true">account_circle</span>
         <input
           matInput
           autocomplete="username"
           name="username"
+          placeholder="Enter username"
           required
           type="text"
           [(ngModel)]="username"
         />
+        <mat-hint>User name</mat-hint>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Password</mat-label>
+        <span class="material-symbols-outlined login-field-icon" matPrefix aria-hidden="true">lock</span>
         <input
           matInput
           autocomplete="current-password"
           name="password"
+          placeholder="Enter password"
           required
-          type="password"
+          [type]="showPassword() ? 'text' : 'password'"
           [(ngModel)]="password"
         />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          class="password-toggle"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          [attr.aria-pressed]="showPassword()"
+          (click)="togglePasswordVisibility()"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">
+            {{ showPassword() ? 'visibility_off' : 'visibility' }}
+          </span>
+        </button>
+        <mat-hint>Password</mat-hint>
       </mat-form-field>
 
       @if (loginError()) {
@@ -49,21 +57,5 @@
   </section>
 
   <section class="login-context" aria-label="System context">
-    <span class="eyebrow">Secure asset operations</span>
-    <h2>Request, approve, issue and audit ICT assets from one workspace.</h2>
-    <div class="context-grid">
-      <div>
-        <strong>Stock</strong>
-        <span>Verify availability before allocation.</span>
-      </div>
-      <div>
-        <strong>Approvals</strong>
-        <span>Control take-home and removal workflows.</span>
-      </div>
-      <div>
-        <strong>Audit</strong>
-        <span>Preserve traceable asset decisions.</span>
-      </div>
-    </div>
   </section>
 </main>

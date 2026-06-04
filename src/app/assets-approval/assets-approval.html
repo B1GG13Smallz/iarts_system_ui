@@ -10,7 +10,7 @@
     </div>
 
     <nav>
-      @if (isStoreroom()) {
+      @if (isStoreroom() || canUseRequesteeNavigation()) {
         <a routerLink="/requests">
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">send</span>
           <span class="sidebar-label">Request</span>
@@ -37,6 +37,10 @@
         <a routerLink="/register">
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
           <span class="sidebar-label">Register</span>
+        </a>
+        <a routerLink="/permission-to-remove-equipment">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
+          <span class="sidebar-label">Permission to remove equipment</span>
         </a>
       } @else {
         <a routerLink="/assets-approval" class="active">
