@@ -21,6 +21,8 @@ import { AuthService } from '../auth/auth';
   styleUrl: './login.scss',
 })
 export class Login {
+  private readonly passwordPattern = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+
   protected username = '';
   protected password = '';
   protected readonly loginError = signal('');
@@ -35,6 +37,13 @@ export class Login {
   protected submitLogin(): void {
     if (!this.username.trim() || !this.password) {
       this.loginError.set('Enter your username and password.');
+      return;
+    }
+
+    if (!this.passwordPattern.test(this.password)) {
+      this.loginError.set(
+        'Password must be at least 8 characters and include one uppercase letter and one special character.',
+      );
       return;
     }
 

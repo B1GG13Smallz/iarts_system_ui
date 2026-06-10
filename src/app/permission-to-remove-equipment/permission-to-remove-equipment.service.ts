@@ -30,6 +30,12 @@ export interface PermissionToRemoveEquipmentPayload {
   securityDate: string;
 }
 
+export interface PermissionRemovalRecord extends PermissionToRemoveEquipmentPayload {
+  id: number;
+  workflowStatus: string;
+  createdByUsername: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -43,6 +49,46 @@ export class PermissionToRemoveEquipmentService {
 
   save(payload: PermissionToRemoveEquipmentPayload): Observable<unknown> {
     return this.http.post(this.apiUrl, payload, { headers: this.authHeaders() });
+  }
+
+  sendToStoreroom(payload: PermissionToRemoveEquipmentPayload): Observable<{ id: number; message: string }> {
+    return this.http.post<{ id: number; message: string }>(
+      `${this.apiUrl}/send-to-storeroom`,
+      payload,
+      { headers: this.authHeaders() },
+    );
+  }
+
+  search(identityOrPersalNumber: string, workflowStatus?: string): Observable<PermissionRemovalRecord[]> {
+    const params = new URLSearchParams();
+    if (identityOrPersalNumber.trim()) {
+      params.set('identityOrPersalNumber', identityOrPersalNumber.trim());
+    }
+    if (workflowStatus) {
+      params.set('workflowStatus', workflowStatus);
+    }
+
+    const query = params.toString();
+    return this.http.get<PermissionRemovalRecord[]>(
+      query ? `${this.apiUrl}?${query}` : this.apiUrl,
+      { headers: this.authHeaders() },
+    );
+  }
+
+  sendToAssets(id: number, payload: PermissionToRemoveEquipmentPayload): Observable<{ id: number; message: string }> {
+    return this.http.post<{ id: number; message: string }>(
+      `${this.apiUrl}/${id}/send-to-assets`,
+      payload,
+      { headers: this.authHeaders() },
+    );
+  }
+
+  saveAssetsApproval(id: number, payload: PermissionToRemoveEquipmentPayload): Observable<{ id: number; message: string }> {
+    return this.http.post<{ id: number; message: string }>(
+      `${this.apiUrl}/${id}/assets-approval`,
+      payload,
+      { headers: this.authHeaders() },
+    );
   }
 
   generatePdf(payload: PermissionToRemoveEquipmentPayload): Observable<Blob> {

@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService, AuthSession } from '../auth/auth';
 import {
+  PermissionRemovalRecord,
   PermissionSignaturePayload,
   PermissionToRemoveEquipmentPayload,
   PermissionToRemoveEquipmentService,
@@ -62,9 +63,20 @@ export class PermissionToRemoveEquipment implements OnDestroy {
   protected saveMessage = '';
   protected pdfMessage = '';
   protected isSaving = false;
+  protected isSendingToStoreroom = false;
+  protected isSavingAssetsApproval = false;
   protected isGeneratingPdf = false;
   protected pdfObjectUrl = '';
   protected pdfPreviewUrl: SafeResourceUrl | null = null;
+  protected isPreviewOpen = false;
+  protected statusSearchTerm = '';
+  protected statusRecords: PermissionRemovalRecord[] = [];
+  protected isSearchingStatus = false;
+  protected permissionSearchTerm = '';
+  protected permissionRecords: PermissionRemovalRecord[] = [];
+  protected selectedPermissionRecord: PermissionRemovalRecord | null = null;
+  protected isSearchingPermission = false;
+  private pendingPayload: PermissionToRemoveEquipmentPayload | null = null;
 
   constructor(
     private readonly authService: AuthService,
@@ -89,6 +101,14 @@ export class PermissionToRemoveEquipment implements OnDestroy {
     return this.authService.hasRole('ICT_STOREROOM');
   }
 
+  protected isAssetsUser(): boolean {
+    return this.authService.hasRole('ASSET_MANAGEMENT');
+  }
+
+  protected canSendToStoreroom(): boolean {
+    return !this.canGeneratePdf() && !this.isAssetsUser();
+  }
+
   protected saveForm(): void {
     this.saveMessage = '';
     const payload = this.createPayload();
@@ -98,10 +118,144 @@ export class PermissionToRemoveEquipment implements OnDestroy {
       return;
     }
 
+    this.pendingPayload = payload;
+    this.isPreviewOpen = true;
+  }
+
+  protected sendToStoreroom(): void {
+    this.saveMessage = '';
+    const payload = this.createPayload();
+
+    if (
+      !payload.officialName ||
+      !payload.identityOrPersalNumber ||
+      !payload.equipmentDescription ||
+      !payload.barCode ||
+      !payload.serialNumber ||
+      !payload.currentLocation ||
+      !payload.period ||
+      !payload.newLocation
+    ) {
+      this.saveMessage = 'Complete official name, ID or Persal number, equipment description, bar code, serial number, current location, period and new location before sending to storeroom.';
+      return;
+    }
+
+    if (!payload.officialSignature) {
+      this.saveMessage = 'Upload the requestee signature before sending to storeroom.';
+      return;
+    }
+
+    this.isSendingToStoreroom = true;
+    this.permissionService.sendToStoreroom(payload).subscribe({
+      next: () => {
+        this.isSendingToStoreroom = false;
+        this.saveMessage = 'Permission to remove equipment sent to storeroom for approval.';
+      },
+      error: () => {
+        this.isSendingToStoreroom = false;
+        this.saveMessage = 'Could not send permission to remove equipment to storeroom.';
+      },
+    });
+  }
+
+  protected searchSubmittedForms(): void {
+    this.saveMessage = '';
+    this.isSearchingStatus = true;
+    this.permissionService.search(this.statusSearchTerm).subscribe({
+      next: (records) => {
+        this.isSearchingStatus = false;
+        this.statusRecords = records;
+        this.saveMessage = records.length ? '' : 'No permission removal forms found for that ID or Persal number.';
+      },
+      error: () => {
+        this.isSearchingStatus = false;
+        this.saveMessage = 'Could not search permission removal forms.';
+      },
+    });
+  }
+
+  protected searchPermissionFormsForAssets(): void {
+    this.saveMessage = '';
+    this.isSearchingPermission = true;
+    this.permissionService.search(this.permissionSearchTerm, 'SENT_TO_ASSETS').subscribe({
+      next: (records) => {
+        this.isSearchingPermission = false;
+        this.permissionRecords = records;
+        this.selectedPermissionRecord = records[0] ?? null;
+        if (this.selectedPermissionRecord) {
+          this.populateFromRecord(this.selectedPermissionRecord);
+        }
+        this.saveMessage = records.length ? '' : 'No permission removal forms found for Assets approval.';
+      },
+      error: () => {
+        this.isSearchingPermission = false;
+        this.saveMessage = 'Could not search permission removal forms.';
+      },
+    });
+  }
+
+  protected selectPermissionRecord(record: PermissionRemovalRecord): void {
+    this.selectedPermissionRecord = record;
+    this.populateFromRecord(record);
+    this.saveMessage = '';
+  }
+
+  protected saveAssetsApproval(): void {
+    this.saveMessage = '';
+    const selectedRecord = this.selectedPermissionRecord;
+
+    if (!selectedRecord) {
+      this.saveMessage = 'Search and select a permission removal form first.';
+      return;
+    }
+
+    const payload = this.createPayload();
+
+    if (!payload.mamSignature || !payload.mamDate) {
+      this.saveMessage = 'Upload the MAM signature and capture the MAM date before saving.';
+      return;
+    }
+
+    this.isSavingAssetsApproval = true;
+    this.permissionService.saveAssetsApproval(selectedRecord.id, payload).subscribe({
+      next: () => {
+        this.isSavingAssetsApproval = false;
+        this.saveMessage = 'Permission to remove equipment saved by Assets.';
+        this.selectedPermissionRecord = {
+          ...selectedRecord,
+          ...payload,
+          workflowStatus: 'ASSETS_APPROVED',
+        };
+      },
+      error: () => {
+        this.isSavingAssetsApproval = false;
+        this.saveMessage = 'Could not save Assets approval on the permission form.';
+      },
+    });
+  }
+
+  protected closeSavePreview(): void {
+    if (this.isSaving) {
+      return;
+    }
+
+    this.isPreviewOpen = false;
+    this.pendingPayload = null;
+  }
+
+  protected printSavePreview(): void {
+    window.print();
+  }
+
+  protected persistPreviewedForm(): void {
+    const payload = this.pendingPayload ?? this.createPayload();
+
     this.isSaving = true;
     this.permissionService.save(payload).subscribe({
       next: () => {
         this.isSaving = false;
+        this.isPreviewOpen = false;
+        this.pendingPayload = null;
         this.saveMessage = 'Permission to remove equipment saved successfully.';
       },
       error: () => {
@@ -155,6 +309,18 @@ export class PermissionToRemoveEquipment implements OnDestroy {
   protected logout(): void {
     this.authService.logout();
     this.router.navigateByUrl('/login');
+  }
+
+  protected displayDate(date: Date | null): string {
+    return this.formatDate(date) || 'Not captured';
+  }
+
+  protected signatureLabel(signature: SignatureState): string {
+    return signature.fileName || 'Not captured';
+  }
+
+  protected recordSignatureLabel(signature: PermissionSignaturePayload | undefined): string {
+    return signature?.fileName || 'Not captured';
   }
 
   private createPayload(): PermissionToRemoveEquipmentPayload {
@@ -221,6 +387,38 @@ export class PermissionToRemoveEquipment implements OnDestroy {
     reader.readAsDataURL(file);
   }
 
+  private populateFromRecord(record: PermissionRemovalRecord): void {
+    this.form.officialName = record.officialName;
+    this.form.unitDirectorateBranch = record.unitDirectorateBranch;
+    this.form.telephoneNumber = record.telephoneNumber;
+    this.form.identityOrPersalNumber = record.identityOrPersalNumber;
+    this.form.removalReason = record.removalReason;
+    this.form.equipmentDescription = record.equipmentDescription;
+    this.form.barCode = record.barCode;
+    this.form.serialNumber = record.serialNumber;
+    this.form.currentLocation = record.currentLocation;
+    this.form.period = record.period;
+    this.form.newLocation = record.newLocation;
+    this.form.ictDate = this.parseDate(record.ictDate);
+    this.form.mamDate = this.parseDate(record.mamDate);
+    this.form.securityDate = this.parseDate(record.securityDate);
+    this.applyStoredSignature(this.officialSignature, record.officialSignature);
+    this.applyStoredSignature(this.ictSignature, record.ictSignature);
+    this.applyStoredSignature(this.mamSignature, record.mamSignature);
+    this.applyStoredSignature(this.securitySignature, record.securitySignature);
+  }
+
+  private applyStoredSignature(signature: SignatureState, storedSignature: PermissionSignaturePayload | undefined): void {
+    this.clearSignaturePreview(signature);
+    signature.fileName = storedSignature?.fileName ?? '';
+    signature.contentType = storedSignature?.contentType ?? '';
+    signature.base64 = storedSignature?.base64 ?? '';
+    signature.previewUrl = storedSignature?.contentType.startsWith('image/')
+      ? `data:${storedSignature.contentType};base64,${storedSignature.base64}`
+      : '';
+    signature.isDragging = false;
+  }
+
   private clearSignaturePreview(signature: SignatureState): void {
     if (signature.previewUrl) {
       URL.revokeObjectURL(signature.previewUrl);
@@ -256,5 +454,14 @@ export class PermissionToRemoveEquipment implements OnDestroy {
     const day = String(date.getDate()).padStart(2, '0');
 
     return `${year}-${month}-${day}`;
+  }
+
+  private parseDate(date: string): Date | null {
+    if (!date) {
+      return null;
+    }
+
+    const parsedDate = new Date(`${date}T00:00:00`);
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
   }
 }

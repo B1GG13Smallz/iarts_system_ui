@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import { AuthService } from '../auth/auth';
 
 export interface AssetApprovalPayload {
-  requestId: number;
+  requestId?: number;
+  permissionRemovalId?: number;
   movableAssetName: string;
   approvalDate: string;
   signatureFileName: string;

@@ -9,13 +9,20 @@
     </div>
 
     <nav>
-      <a routerLink="/requests">Request</a>
-      <a routerLink="/request-status">Request status</a>
-      <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
-      <a routerLink="/assets-approval">View assets approval form</a>
-      <a routerLink="/asset-return">Asset return</a>
-      <a routerLink="/register">Register</a>
+      @if (!isAssetsUser()) {
+        <a routerLink="/requests">Request</a>
+        <a routerLink="/request-status">Request status</a>
+        <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>
+        <a routerLink="/assets-approval">View assets approval form</a>
+        <a routerLink="/asset-return">Asset return</a>
+        <a routerLink="/register">Register</a>
+      } @else {
+        <a routerLink="/assets-approval">Assets approval</a>
+      }
       <a routerLink="/permission-to-remove-equipment" class="active">Permission to remove equipment</a>
+      @if (canGeneratePdf()) {
+        <a routerLink="/permission-removal-storeroom">Storeroom approvals</a>
+      }
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">
@@ -33,6 +40,35 @@
   <section class="workspace">
     <form class="permission-form">
       <section class="form-panel">
+        @if (isAssetsUser()) {
+          <section class="status-lookup" aria-label="Search permission removal forms for assets">
+            <div>
+              <span class="eyebrow">Permission forms</span>
+              <strong>Search by ID or Persal number</strong>
+            </div>
+            <div class="lookup-controls">
+              <mat-form-field appearance="outline">
+                <mat-label>ID or Persal number</mat-label>
+                <input matInput name="permissionSearchTerm" [(ngModel)]="permissionSearchTerm" />
+              </mat-form-field>
+              <button mat-stroked-button type="button" [disabled]="isSearchingPermission" (click)="searchPermissionFormsForAssets()">
+                {{ isSearchingPermission ? 'Searching' : 'Search permission form' }}
+              </button>
+            </div>
+            @if (permissionRecords.length) {
+              <div class="status-results">
+                @for (record of permissionRecords; track record.id) {
+                  <button type="button" [class.active]="selectedPermissionRecord?.id === record.id" (click)="selectPermissionRecord(record)">
+                    <strong>{{ record.officialName }}</strong>
+                    <span>{{ record.identityOrPersalNumber }}</span>
+                    <small>{{ record.workflowStatus }}</small>
+                  </button>
+                }
+              </div>
+            }
+          </section>
+        }
+
         <header class="form-header">
           <img src="/DPWI_logo.jpg" alt="DPWI logo" />
           <div class="bold-line" aria-hidden="true"></div>
@@ -178,6 +214,20 @@
           </tr>
         </table>
 
+        @if (canSendToStoreroom()) {
+        <div class="handoff-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            [disabled]="isSendingToStoreroom"
+            (click)="sendToStoreroom()"
+          >
+            {{ isSendingToStoreroom ? 'Sending' : 'Send to Storeroom for approval' }}
+          </button>
+        </div>
+        }
+
         <mat-card class="permission-card">
           <mat-card-content>
             <h2>E. PERMISSION GRANTED (ICT)</h2>
@@ -276,6 +326,20 @@
           </mat-card-content>
         </mat-card>
 
+        @if (isAssetsUser()) {
+        <div class="handoff-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            [disabled]="isSavingAssetsApproval"
+            (click)="saveAssetsApproval()"
+          >
+            {{ isSavingAssetsApproval ? 'Saving' : 'Save form before Security signature' }}
+          </button>
+        </div>
+        }
+
         <mat-card class="permission-card">
           <mat-card-content>
             <h2>F. SECURITY CHECK AND SIGNATURE</h2>
@@ -328,6 +392,36 @@
           <p class="save-message">{{ saveMessage }}</p>
         }
 
+        @if (!isAssetsUser()) {
+        <section class="status-lookup" aria-label="Submitted permission removal status">
+          <div>
+            <span class="eyebrow">Submitted forms</span>
+            <strong>Check approval status</strong>
+          </div>
+          <div class="lookup-controls">
+            <mat-form-field appearance="outline">
+              <mat-label>ID or Persal number</mat-label>
+              <input matInput name="statusSearchTerm" [(ngModel)]="statusSearchTerm" />
+            </mat-form-field>
+            <button mat-stroked-button type="button" [disabled]="isSearchingStatus" (click)="searchSubmittedForms()">
+              {{ isSearchingStatus ? 'Searching' : 'Search status' }}
+            </button>
+          </div>
+          @if (statusRecords.length) {
+            <div class="status-results">
+              @for (record of statusRecords; track record.id) {
+                <button type="button" [class.active]="selectedPermissionRecord?.id === record.id" (click)="selectPermissionRecord(record)">
+                  <strong>{{ record.officialName }}</strong>
+                  <span>{{ record.identityOrPersalNumber }}</span>
+                  <small>{{ record.workflowStatus }}</small>
+                </button>
+              }
+            </div>
+          }
+        </section>
+        }
+
+        @if (!isAssetsUser()) {
         <footer class="form-footer">
           <button mat-raised-button color="primary" type="button" [disabled]="isSaving" (click)="saveForm()">
             {{ isSaving ? 'Saving' : 'Save' }}
@@ -338,6 +432,7 @@
             </button>
           }
         </footer>
+        }
 
         @if (pdfMessage) {
           <p class="save-message">{{ pdfMessage }}</p>
@@ -355,4 +450,172 @@
       </section>
     </form>
   </section>
+
+  @if (isPreviewOpen) {
+    <section class="preview-backdrop" role="dialog" aria-modal="true" aria-labelledby="permission-preview-title">
+      <div class="preview-dialog">
+        <div class="preview-toolbar">
+          <div>
+            <span class="eyebrow">Print preview</span>
+            <h2 id="permission-preview-title">Permission to remove equipment</h2>
+          </div>
+          <div class="preview-actions">
+            <button mat-stroked-button type="button" (click)="printSavePreview()">Print</button>
+            <button mat-raised-button color="primary" type="button" [disabled]="isSaving" (click)="persistPreviewedForm()">
+              {{ isSaving ? 'Saving' : 'Save to database' }}
+            </button>
+            <button mat-stroked-button type="button" [disabled]="isSaving" (click)="closeSavePreview()">Close</button>
+          </div>
+        </div>
+
+        <article class="permission-print-preview">
+          <header class="preview-form-header">
+            <img src="/DPWI_logo.jpg" alt="DPWI logo" />
+            <div>
+              <strong>Department of Public Works and Infrastructure</strong>
+              <span>Integrated ICT Assets Request and Tracking System</span>
+            </div>
+          </header>
+
+          <div class="preview-title-block">
+            <div class="bold-line" aria-hidden="true"></div>
+            <h1>PERMISSION TO REMOVE EQUIPMENT FROM THE BUILDING(CGO)</h1>
+            <div class="bold-line" aria-hidden="true"></div>
+          </div>
+
+          <table class="preview-table">
+            <tr>
+              <th colspan="2">A. PARTICULARS OF THE OFFICIAL REMOVING EQUIPMENT</th>
+            </tr>
+            <tr>
+              <td>NAME AND SURNAME OF OFFICIAL</td>
+              <td>{{ form.officialName || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td>UNIT /DIRECTORATE / BRANCH</td>
+              <td>{{ form.unitDirectorateBranch || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td>TELEPHONE NUMBER</td>
+              <td>{{ form.telephoneNumber || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td>IDENTITY OR PERSAL NUMBER</td>
+              <td>{{ form.identityOrPersalNumber || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td>REASON TO REMOVE EQUIPMENT FROM BUILDING</td>
+              <td>{{ form.removalReason || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td>SIGNATURE OF OFFICIAL</td>
+              <td>
+                @if (officialSignature.previewUrl) {
+                  <img class="preview-signature" [src]="officialSignature.previewUrl" alt="Official signature" />
+                } @else {
+                  {{ signatureLabel(officialSignature) }}
+                }
+              </td>
+            </tr>
+          </table>
+
+          <table class="preview-table preview-equipment-table">
+            <tr>
+              <th colspan="3">C. DESCRIPTION OF EQUIPMENT</th>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td>Bar code</td>
+              <td>Serial Number</td>
+            </tr>
+            <tr>
+              <td>{{ form.equipmentDescription || 'Not captured' }}</td>
+              <td>{{ form.barCode || 'Not captured' }}</td>
+              <td>{{ form.serialNumber || 'Not captured' }}</td>
+            </tr>
+          </table>
+
+          <table class="preview-table">
+            <tr>
+              <th colspan="2">
+                D. PERMISSION REQUESTED
+                <span>Permission is requested to remove equipment specified above or on the list attached</span>
+              </th>
+            </tr>
+            <tr>
+              <td>CURRENT LOCATION(ROOM NUMBER AND BUILDING)</td>
+              <td>{{ form.currentLocation || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td>PERIOD(If it's a laptop not more than 10 days, if more than 10 days motivation needed)</td>
+              <td>{{ form.period || 'Not captured' }}</td>
+            </tr>
+            <tr>
+              <td>NEW LOCATION</td>
+              <td>{{ form.newLocation || 'Not captured' }}</td>
+            </tr>
+          </table>
+
+          <section class="preview-card">
+            <h3>E. PERMISSION GRANTED (ICT)</h3>
+            <p>
+              Equipment as in C and serial number checked. Only authorised signature(P. Mphuthi, M. Repoo, J.
+              Lupuwane, M. Mahlanga, T. Sithebe &amp; B Silaule) allowed either on the stamp or as signature on the
+              form. To be checked against specimen signatures.
+            </p>
+            <div class="preview-signature-row">
+              <span>
+                <strong>Signature:</strong>
+                @if (ictSignature.previewUrl) {
+                  <img class="preview-signature" [src]="ictSignature.previewUrl" alt="ICT signature" />
+                } @else {
+                  {{ signatureLabel(ictSignature) }}
+                }
+              </span>
+              <span><strong>Date:</strong> {{ displayDate(form.ictDate) }}</span>
+            </div>
+          </section>
+
+          <section class="preview-card">
+            <h3>E. PERMISSION GRANTED (MAM)</h3>
+            <p>
+              Equipment as in C and serial number checked. Only authorised signature(T Mamabolo,L Ditsepo,T Khumalo,E
+              Machoga, T.Sekgala &amp; B Mokoana) allowed either on the stamp or as signature on the form. To be checked
+              against specimen signatures.
+            </p>
+            <div class="preview-signature-row">
+              <span>
+                <strong>Signature:</strong>
+                @if (mamSignature.previewUrl) {
+                  <img class="preview-signature" [src]="mamSignature.previewUrl" alt="MAM signature" />
+                } @else {
+                  {{ signatureLabel(mamSignature) }}
+                }
+              </span>
+              <span><strong>Date:</strong> {{ displayDate(form.mamDate) }}</span>
+            </div>
+          </section>
+
+          <section class="preview-card">
+            <h3>F. SECURITY CHECK AND SIGNATURE</h3>
+            <p>
+              Only supervisors to sign (T. Makwela, E. Tshivase, E. Makgalefa, M Sikhathi, D Mokonyama, L
+              Phahladira, R Mudau, A Kgobane, M . Mohapi, M . Matsepe).
+            </p>
+            <div class="preview-signature-row">
+              <span>
+                <strong>Signature:</strong>
+                @if (securitySignature.previewUrl) {
+                  <img class="preview-signature" [src]="securitySignature.previewUrl" alt="Security signature" />
+                } @else {
+                  {{ signatureLabel(securitySignature) }}
+                }
+              </span>
+              <span><strong>Date:</strong> {{ displayDate(form.securityDate) }}</span>
+            </div>
+          </section>
+        </article>
+      </div>
+    </section>
+  }
 </main>

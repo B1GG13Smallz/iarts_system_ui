@@ -16,6 +16,7 @@ import {
   RegisterService,
   RegisterSignaturePayload,
   RegisterType,
+  StoresOfficialSignaturePayload,
 } from './register.service';
 
 interface SignatureState {
@@ -206,6 +207,10 @@ export class Register implements OnDestroy, OnInit {
     return `data:${signature.contentType};base64,${signature.base64}`;
   }
 
+  protected isStoresOfficialSigned(record: RegisterRecord): boolean {
+    return Boolean(record.storesOfficialSignOut);
+  }
+
   protected uploadStoresOfficialSignature(record: RegisterRecord, event: Event): void {
     const input = event.target as HTMLInputElement;
     this.readSignatureFile(this.stateFor(record).signature, input.files?.[0]);
@@ -222,16 +227,24 @@ export class Register implements OnDestroy, OnInit {
     }
 
     state.isSaving = true;
+    const payload: StoresOfficialSignaturePayload = {
+      storesOfficialName: state.storesOfficialName.trim(),
+      storesOfficialSignOut: this.signaturePayload(state.signature) as RegisterSignaturePayload,
+    };
+
     this.registerService
-      .signStoresOfficial(record.id, {
-        storesOfficialName: state.storesOfficialName.trim(),
-        storesOfficialSignOut: this.signaturePayload(state.signature) as RegisterSignaturePayload,
-      })
+      .signStoresOfficial(record.id, payload)
       .subscribe({
         next: (updatedRecord) => {
           state.isSaving = false;
           state.message = 'Stores official signature saved.';
-          this.records = this.records.map((currentRecord) => currentRecord.id === updatedRecord.id ? updatedRecord : currentRecord);
+          const signedRecord: RegisterRecord = {
+            ...record,
+            ...updatedRecord,
+            storesOfficialName: updatedRecord.storesOfficialName || payload.storesOfficialName,
+            storesOfficialSignOut: updatedRecord.storesOfficialSignOut || payload.storesOfficialSignOut,
+          };
+          this.records = this.records.map((currentRecord) => currentRecord.id === signedRecord.id ? signedRecord : currentRecord);
           this.resetSignature(state.signature);
         },
         error: () => {

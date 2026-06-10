@@ -42,10 +42,20 @@
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
           <span class="sidebar-label">Permission to remove equipment</span>
         </a>
+        @if (isStoreroom()) {
+          <a routerLink="/permission-removal-storeroom">
+            <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory</span>
+            <span class="sidebar-label">Storeroom approvals</span>
+          </a>
+        }
       } @else {
         <a routerLink="/assets-approval" class="active">
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
           <span class="sidebar-label">Assets approval</span>
+        </a>
+        <a routerLink="/permission-to-remove-equipment">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
+          <span class="sidebar-label">Permission to remove equipment</span>
         </a>
       }
     </nav>
@@ -84,6 +94,7 @@
           </select>
         </label>
       }
+
     </header>
 
     @if (loadMessage()) {

@@ -126,20 +126,26 @@
                     }
                   </td>
                   <td class="stores-official-cell">
-                    <mat-form-field appearance="outline" class="stores-official-field">
-                      <input
-                        matInput
-                        name="storesOfficialName{{ record.id }}"
-                        aria-label="Stores official name"
-                        [(ngModel)]="stateFor(record).storesOfficialName"
-                      />
-                    </mat-form-field>
+                    @if (isStoresOfficialSigned(record)) {
+                      <span>{{ record.storesOfficialName || 'Not captured' }}</span>
+                    } @else {
+                      <mat-form-field appearance="outline" class="stores-official-field">
+                        <input
+                          matInput
+                          name="storesOfficialName{{ record.id }}"
+                          aria-label="Stores official name"
+                          [(ngModel)]="stateFor(record).storesOfficialName"
+                        />
+                      </mat-form-field>
+                    }
                   </td>
                   <td class="stores-signature-cell">
-                    @if (signaturePreview(record.storesOfficialSignOut)) {
-                      <img class="record-signature" [src]="signaturePreview(record.storesOfficialSignOut)" alt="Stores official signature" />
-                    } @else if (record.storesOfficialSignOut) {
-                      <span>{{ signatureLabel(record.storesOfficialSignOut) }}</span>
+                    @if (isStoresOfficialSigned(record)) {
+                      @if (signaturePreview(record.storesOfficialSignOut)) {
+                        <img class="record-signature" [src]="signaturePreview(record.storesOfficialSignOut)" alt="Stores official signature" />
+                      } @else {
+                        <span>{{ signatureLabel(record.storesOfficialSignOut) }}</span>
+                      }
                     } @else {
                       <button
                         class="signature-dropzone compact"

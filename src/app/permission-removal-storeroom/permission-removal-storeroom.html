@@ -1,0 +1,153 @@
+<main class="storeroom-shell">
+  <aside class="sidebar" aria-label="Storeroom permission removal navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard">Dashboard</a>
+      <a routerLink="/register">Register</a>
+      <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
+      <a routerLink="/permission-removal-storeroom" class="active">Storeroom approvals</a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">Logout</button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">Storeroom approval</span>
+        <h1>Permission to remove equipment</h1>
+      </div>
+      <form class="search-bar" (ngSubmit)="search()">
+        <mat-form-field appearance="outline">
+          <mat-label>ID or Persal number</mat-label>
+          <input matInput name="searchTerm" [(ngModel)]="searchTerm" />
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isSearching">
+          {{ isSearching ? 'Searching' : 'Search' }}
+        </button>
+      </form>
+    </header>
+
+    @if (message) {
+      <p class="message">{{ message }}</p>
+    }
+
+    @if (records.length) {
+      <section class="results">
+        @for (record of records; track record.id) {
+          <button type="button" [class.active]="selectedRecord?.id === record.id" (click)="selectRecord(record)">
+            <strong>{{ record.officialName }}</strong>
+            <span>{{ record.identityOrPersalNumber }}</span>
+            <small>{{ record.workflowStatus }}</small>
+          </button>
+        }
+      </section>
+    }
+
+    @if (selectedRecord; as record) {
+      <article class="form-preview">
+        <header class="form-header">
+          <img src="/DPWI_logo.jpg" alt="DPWI logo" />
+          <div>
+            <strong>Department of Public Works and Infrastructure</strong>
+            <span>Permission to remove equipment from the building(CGO)</span>
+          </div>
+        </header>
+
+        <table>
+          <tr><th colspan="2">A. PARTICULARS OF THE OFFICIAL REMOVING EQUIPMENT</th></tr>
+          <tr><td>Name and surname</td><td>{{ record.officialName }}</td></tr>
+          <tr><td>Unit / Directorate / Branch</td><td>{{ record.unitDirectorateBranch || 'Not captured' }}</td></tr>
+          <tr><td>Telephone number</td><td>{{ record.telephoneNumber || 'Not captured' }}</td></tr>
+          <tr><td>ID or Persal number</td><td>{{ record.identityOrPersalNumber }}</td></tr>
+          <tr><td>Reason</td><td>{{ record.removalReason || 'Not captured' }}</td></tr>
+          <tr>
+            <td>Requestee signature</td>
+            <td>
+              @if (signaturePreview(record.officialSignature)) {
+                <img class="signature" [src]="signaturePreview(record.officialSignature)" alt="Requestee signature" />
+              } @else {
+                {{ record.officialSignature?.fileName || 'Not captured' }}
+              }
+            </td>
+          </tr>
+        </table>
+
+        <table>
+          <tr><th colspan="3">C. DESCRIPTION OF EQUIPMENT</th></tr>
+          <tr><td>Description</td><td>Bar code</td><td>Serial number</td></tr>
+          <tr><td>{{ record.equipmentDescription }}</td><td>{{ record.barCode }}</td><td>{{ record.serialNumber }}</td></tr>
+        </table>
+
+        <table>
+          <tr>
+            <th colspan="2">
+              D. PERMISSION REQUESTED
+              <span>Permission is requested to remove equipment specified above or on the list attached</span>
+            </th>
+          </tr>
+          <tr><td>Current location(room number and building)</td><td>{{ record.currentLocation || 'Not captured' }}</td></tr>
+          <tr><td>Period</td><td>{{ record.period || 'Not captured' }}</td></tr>
+          <tr><td>New location</td><td>{{ record.newLocation || 'Not captured' }}</td></tr>
+        </table>
+
+        <mat-card class="approval-card">
+          <mat-card-content>
+            <h2>E. PERMISSION GRANTED (ICT)</h2>
+            <p>
+              Equipment as in C and serial number checked. Only authorised signature(P. Mphuthi, M. Repoo, J.
+              Lupuwane, M. Mahlanga, T. Sithebe &amp; B Silaule) allowed either on the stamp or as signature on the
+              form. To be checked against specimen signatures.
+            </p>
+            <div class="approval-grid">
+              <label>
+                <span>ICT signature</span>
+                <button class="signature-upload" type="button" (click)="ictSignatureInput.click()">
+                  @if (ictSignature.previewUrl) {
+                    <img class="signature" [src]="ictSignature.previewUrl" alt="ICT signature preview" />
+                  } @else if (ictSignature.fileName) {
+                    {{ ictSignature.fileName }}
+                  } @else {
+                    Upload signature
+                  }
+                </button>
+                <input
+                  #ictSignatureInput
+                  class="file-input"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  (change)="uploadIctSignature($event)"
+                />
+              </label>
+
+              <mat-form-field appearance="outline">
+                <mat-label>ICT date</mat-label>
+                <input matInput name="ictDate" type="date" [(ngModel)]="ictDate" />
+              </mat-form-field>
+            </div>
+
+            <button mat-raised-button color="primary" type="button" [disabled]="isSending" (click)="sendToAssets()">
+              {{ isSending ? 'Sending' : 'Send to Assets for approval' }}
+            </button>
+          </mat-card-content>
+        </mat-card>
+      </article>
+    }
+  </section>
+</main>
