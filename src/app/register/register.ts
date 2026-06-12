@@ -170,6 +170,10 @@ export class Register implements OnDestroy, OnInit {
     return this.authService.hasRole('ICT_STOREROOM');
   }
 
+  protected isSystemAdmin(): boolean {
+    return this.authService.hasRole('ADMIN');
+  }
+
   protected selectRegisterType(registerType: RegisterType): void {
     this.form.registerType = registerType;
 

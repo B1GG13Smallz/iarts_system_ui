@@ -1,0 +1,207 @@
+<main class="asset-capture-shell">
+  <aside class="sidebar" aria-label="Asset capture navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">dashboard</span>
+        <span class="sidebar-label">Dashboard</span>
+      </a>
+      <a routerLink="/asset-capture" class="active">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory_2</span>
+        <span class="sidebar-label">Asset capture</span>
+      </a>
+      <a routerLink="/assets-approval">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+        <span class="sidebar-label">View assets approval form</span>
+      </a>
+      <a routerLink="/register">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+        <span class="sidebar-label">Register</span>
+      </a>
+      <a routerLink="/permission-to-remove-equipment">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
+        <span class="sidebar-label">Permission to remove equipment</span>
+      </a>
+      <a routerLink="/permission-removal-storeroom">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory</span>
+        <span class="sidebar-label">Storeroom approvals</span>
+      </a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="material-symbols-outlined credentials-icon" aria-hidden="true">account_circle</span>
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">logout</span>
+        <span class="sidebar-label">Logout</span>
+      </button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Equipment stock</span>
+        <h1>Asset capture</h1>
+      </div>
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search stock</mat-label>
+        <input matInput type="search" [ngModel]="query()" (ngModelChange)="updateQuery($event)" />
+      </mat-form-field>
+    </header>
+
+    @if (!isAdminOrStoreroom()) {
+      <p class="message">Only system administrators and storeroom users can manage equipment stock.</p>
+    } @else {
+      <section class="content-grid">
+        <article class="panel form-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">{{ editingId() ? 'Update stock' : 'New stock' }}</span>
+              <h2>{{ editingId() ? 'Edit equipment' : 'Add equipment to stock' }}</h2>
+            </div>
+          </div>
+
+          <form class="asset-form" #assetForm="ngForm" (ngSubmit)="save()">
+            <mat-form-field appearance="outline">
+              <mat-label>Barcode</mat-label>
+              <input matInput required name="assetTag" [(ngModel)]="form.assetTag" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Serial number</mat-label>
+              <input matInput name="serialNumber" [(ngModel)]="form.serialNumber" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Asset type</mat-label>
+              <mat-select required name="assetType" [(ngModel)]="form.assetType">
+                <mat-option value="Laptop">Laptop</mat-option>
+                <mat-option value="Monitor">Monitor</mat-option>
+                <mat-option value="Printer">Printer</mat-option>
+                <mat-option value="Docking station">Docking station</mat-option>
+                <mat-option value="Keyboard and mouse set">Keyboard and mouse set</mat-option>
+                <mat-option value="Other">Other</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="two-column">
+              <mat-form-field appearance="outline">
+                <mat-label>Make</mat-label>
+                <input matInput name="make" [(ngModel)]="form.make" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Model</mat-label>
+                <input matInput name="model" [(ngModel)]="form.model" />
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Equipment location</mat-label>
+              <input matInput name="location" [(ngModel)]="form.location" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Storeroom shelf/bin</mat-label>
+              <input matInput name="storeroomLocation" [(ngModel)]="form.storeroomLocation" />
+            </mat-form-field>
+
+            <div class="two-column">
+              <mat-form-field appearance="outline">
+                <mat-label>Net Track reference</mat-label>
+                <input matInput name="netTrackReference" [(ngModel)]="form.netTrackReference" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Stock status</mat-label>
+                <mat-select required name="stockStatus" [(ngModel)]="form.stockStatus">
+                  <mat-option value="AVAILABLE">Available</mat-option>
+                  <mat-option value="RESERVED">Reserved</mat-option>
+                  <mat-option value="ISSUED">Issued</mat-option>
+                  <mat-option value="DAMAGED">Damaged</mat-option>
+                  <mat-option value="UNDER_WARRANTY">Under warranty</mat-option>
+                  <mat-option value="RETIRED">Retired</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <mat-checkbox name="laptopPolicyRequired" [(ngModel)]="form.laptopPolicyRequired">
+              Laptop policy required
+            </mat-checkbox>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Remarks</mat-label>
+              <textarea matInput name="remarks" [(ngModel)]="form.remarks"></textarea>
+            </mat-form-field>
+
+            @if (message()) {
+              <p class="message">{{ message() }}</p>
+            }
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="assetForm.invalid || isSaving()">
+                {{ isSaving() ? 'Saving' : editingId() ? 'Update equipment' : 'Add equipment' }}
+              </button>
+              @if (editingId()) {
+                <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+              }
+            </div>
+          </form>
+        </article>
+
+        <article class="panel stock-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">Inventory</span>
+              <h2>Equipment stock</h2>
+            </div>
+            <span class="stock-count">{{ filteredStock().length }} items</span>
+          </div>
+
+          <div class="table" role="table" aria-label="Equipment stock">
+            <div class="table-row table-head" role="row">
+              <span role="columnheader">Barcode</span>
+              <span role="columnheader">Type</span>
+              <span role="columnheader">Serial</span>
+              <span role="columnheader">Status</span>
+              <span role="columnheader">Location</span>
+              <span role="columnheader">Actions</span>
+            </div>
+            @for (item of filteredStock(); track item.id) {
+              <div class="table-row" role="row">
+                <strong role="cell">
+                  {{ item.assetTag }}
+                  <small>{{ item.make || 'Make not captured' }} {{ item.model || '' }}</small>
+                </strong>
+                <span role="cell">{{ item.assetType }}</span>
+                <span role="cell">{{ item.serialNumber || 'Not captured' }}</span>
+                <em role="cell">{{ item.stockStatus }}</em>
+                <span role="cell">{{ item.storeroomLocation || item.location || 'Not captured' }}</span>
+                <span role="cell" class="row-actions">
+                  <button mat-stroked-button type="button" (click)="edit(item)">Edit</button>
+                  <button mat-stroked-button type="button" class="danger" (click)="delete(item)">Delete</button>
+                </span>
+              </div>
+            } @empty {
+              <div class="table-row empty-row" role="row">
+                <span role="cell">No equipment stock found.</span>
+              </div>
+            }
+          </div>
+        </article>
+      </section>
+    }
+  </section>
+</main>

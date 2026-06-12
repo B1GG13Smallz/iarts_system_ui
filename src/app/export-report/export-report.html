@@ -1,0 +1,138 @@
+<main class="report-shell">
+  <aside class="sidebar" aria-label="Export report navigation">
+    <div class="brand">
+      <span class="brand-mark">IA</span>
+      <div>
+        <strong>IARTS</strong>
+        <span>ICT Assets Request and Tracking</span>
+      </div>
+    </div>
+
+    <nav>
+      <a routerLink="/dashboard">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">dashboard</span>
+        <span class="sidebar-label">Dashboard</span>
+      </a>
+      <a routerLink="/asset-capture">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory_2</span>
+        <span class="sidebar-label">Asset capture</span>
+      </a>
+      <a routerLink="/export-report" class="active">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">picture_as_pdf</span>
+        <span class="sidebar-label">Export report</span>
+      </a>
+      <a routerLink="/assets-approval">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+        <span class="sidebar-label">View assets approval form</span>
+      </a>
+      <a routerLink="/register">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+        <span class="sidebar-label">Register</span>
+      </a>
+    </nav>
+
+    <section class="sidebar-footer" aria-label="Signed in user">
+      @if (session(); as currentSession) {
+        <div class="credentials-card">
+          <span class="material-symbols-outlined credentials-icon" aria-hidden="true">account_circle</span>
+          <span class="eyebrow">Signed in</span>
+          <strong>{{ currentSession.username }}</strong>
+          <small>{{ currentSession.roles.join(', ') }}</small>
+        </div>
+      }
+      <button class="logout-button" type="button" (click)="logout()">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">logout</span>
+        <span class="sidebar-label">Logout</span>
+      </button>
+    </section>
+  </aside>
+
+  <section class="workspace">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Reporting</span>
+        <h1>Export report</h1>
+      </div>
+      <div class="topbar-actions">
+        <button mat-raised-button color="primary" type="button" (click)="printPdf()">PDF</button>
+        <button mat-stroked-button type="button" (click)="downloadExcel()">Excel spreadsheet</button>
+      </div>
+    </header>
+
+    @if (message()) {
+      <p class="message">{{ message() }}</p>
+    }
+
+    <section class="report-preview" aria-label="Report preview">
+      <div class="report-heading">
+        <div>
+          <span class="eyebrow">Department of Public Works</span>
+          <h2>IARTS equipment report</h2>
+        </div>
+        <span>Generated {{ formatDate(generatedAt()) }}</span>
+      </div>
+
+      <section class="summary-grid" aria-label="Report totals">
+        <article>
+          <span>Total equipment</span>
+          <strong>{{ assetCaptureService.stock().length }}</strong>
+        </article>
+        <article>
+          <span>Requests waiting for approval</span>
+          <strong>{{ pendingRequests().length }}</strong>
+        </article>
+        <article>
+          <span>Asset categories</span>
+          <strong>{{ inventorySummary().length }}</strong>
+        </article>
+      </section>
+
+      <mat-card class="report-card">
+        <mat-card-content>
+          <h3>Inventory summary</h3>
+          <div class="report-table" role="table" aria-label="Inventory summary">
+            <div class="report-row report-head" role="row">
+              <span role="columnheader">Asset type</span>
+              <span role="columnheader">Total</span>
+              <span role="columnheader">Available</span>
+              <span role="columnheader">Reserved</span>
+              <span role="columnheader">Issued</span>
+              <span role="columnheader">Damaged</span>
+              <span role="columnheader">Retired</span>
+            </div>
+            @for (row of inventorySummary(); track row.assetType) {
+              <div class="report-row" role="row">
+                <strong role="cell">{{ row.assetType }}</strong>
+                <span role="cell">{{ row.total }}</span>
+                <span role="cell">{{ row.available }}</span>
+                <span role="cell">{{ row.reserved }}</span>
+                <span role="cell">{{ row.issued }}</span>
+                <span role="cell">{{ row.damaged }}</span>
+                <span role="cell">{{ row.retired }}</span>
+              </div>
+            } @empty {
+              <p class="empty-state">No equipment stock is available for reporting.</p>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="report-card">
+        <mat-card-content>
+          <h3>Requests waiting for approval</h3>
+          <div class="request-list">
+            @for (request of pendingRequests(); track request.id) {
+              <div>
+                <strong>{{ request.referenceNumber || 'No reference' }}</strong>
+                <span>{{ request.equipment }} requested by {{ request.requesterName || 'Not captured' }}</span>
+                <small>{{ formatDate(request.createdAt) }}</small>
+              </div>
+            } @empty {
+              <p class="empty-state">No requests are waiting for approval.</p>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  </section>
+</main>

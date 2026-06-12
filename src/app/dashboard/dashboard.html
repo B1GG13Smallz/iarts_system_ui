@@ -18,6 +18,14 @@
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
           <span class="sidebar-label">View assets approval form</span>
         </button>
+        <a routerLink="/asset-capture">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory_2</span>
+          <span class="sidebar-label">Asset capture</span>
+        </a>
+        <a routerLink="/export-report">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">picture_as_pdf</span>
+          <span class="sidebar-label">Export report</span>
+        </a>
         <a routerLink="/register">
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
           <span class="sidebar-label">Register</span>
@@ -61,14 +69,10 @@
           <span class="eyebrow">Department of Public Works</span>
           <h1>Integrated ICT asset operations</h1>
         </div>
-        <div class="topbar-actions">
-          <button mat-stroked-button type="button" class="ghost">Export audit</button>
-          <button mat-raised-button routerLink="/requests" type="button" class="primary">New request</button>
-        </div>
       </header>
 
       <section class="stats" aria-label="Operational summary">
-      @for (stat of stats; track stat.label) {
+      @for (stat of stats(); track stat.label) {
         <article class="stat-card">
           <span>{{ stat.label }}</span>
           <strong>{{ stat.value }}</strong>
@@ -255,7 +259,7 @@
           </div>
         </div>
         <div class="stock-list">
-          @for (item of stock; track item.item) {
+          @for (item of stock(); track item.item) {
             <div>
               <span>{{ item.item }}</span>
               <strong>{{ item.available }}</strong>

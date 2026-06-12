@@ -9,7 +9,28 @@
     </div>
 
     <nav>
-      @if (!isAssetsUser()) {
+      @if (canGeneratePdf() || isSystemAdmin()) {
+        <a routerLink="/dashboard">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">dashboard</span>
+          <span class="sidebar-label">Dashboard</span>
+        </a>
+        <a routerLink="/asset-capture">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory_2</span>
+          <span class="sidebar-label">Asset capture</span>
+        </a>
+        <a routerLink="/export-report">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">picture_as_pdf</span>
+          <span class="sidebar-label">Export report</span>
+        </a>
+        <a routerLink="/assets-approval">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+          <span class="sidebar-label">View assets approval form</span>
+        </a>
+        <a routerLink="/register">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+          <span class="sidebar-label">Register</span>
+        </a>
+      } @else if (!isAssetsUser()) {
         <a routerLink="/requests">Request</a>
         <a routerLink="/request-status">Request status</a>
         <a routerLink="/laptop-policy-acceptance">Laptop policy acceptance form</a>

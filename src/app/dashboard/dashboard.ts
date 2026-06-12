@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AssetCaptureService, EquipmentStockItem } from '../asset-capture/asset-capture.service';
 import { AssetsApproval } from '../assets-approval/assets-approval';
 import { AuthService, AuthSession } from '../auth/auth';
 import {
@@ -39,6 +40,19 @@ interface AdminRequestForm {
   subDirectorate: string;
   assetType: string;
   justification: string;
+}
+
+interface DashboardStat {
+  label: string;
+  value: string;
+  trend: string;
+}
+
+interface DashboardStockItem {
+  item: string;
+  available: number;
+  reserved: number;
+  threshold: 'Healthy' | 'Watch' | 'Low';
 }
 
 @Component({
@@ -104,8 +118,39 @@ export class Dashboard implements OnDestroy {
   protected readonly canViewMoreProcessingQueue = computed(
     () => (this.processingQueuePage() + 1) * this.processingQueuePageSize < this.processingQueue().length,
   );
+  protected readonly stats = computed<DashboardStat[]>(() => [
+    {
+      label: 'Open requests',
+      value: String(this.pendingAvailabilityRequests().length),
+      trend: this.openRequestsTrend(),
+    },
+    {
+      label: 'Assets in stock',
+      value: String(this.assetCaptureService.stock().length),
+      trend: this.inventoryTrend(),
+    },
+    { label: 'Approvals due', value: '37', trend: '12 take-home, 9 removals' },
+    {
+      label: 'Audit events',
+      value: String(this.reportRecordCount()),
+      trend: this.reportRecordTrend(),
+    },
+  ]);
+  protected readonly stock = computed<DashboardStockItem[]>(() => {
+    const groups = this.groupInventoryByType(this.assetCaptureService.stock());
+
+    return Object.entries(groups)
+      .map(([item, counts]) => ({
+        item,
+        available: counts.available,
+        reserved: counts.reserved,
+        threshold: this.stockThreshold(counts.available),
+      }))
+      .sort((left, right) => left.item.localeCompare(right.item));
+  });
 
   constructor(
+    private readonly assetCaptureService: AssetCaptureService,
     protected readonly availabilityService: AvailabilityRequestService,
     private readonly authService: AuthService,
     private readonly dialog: MatDialog,
@@ -247,13 +292,6 @@ export class Dashboard implements OnDestroy {
     return `${start}-${end} of ${total}`;
   }
 
-  protected readonly stats = [
-    { label: 'Open requests', value: '128', trend: '24 awaiting stock checks' },
-    { label: 'Assets in stock', value: '342', trend: '86 laptops, 41 monitors' },
-    { label: 'Approvals due', value: '37', trend: '12 take-home, 9 removals' },
-    { label: 'Audit events', value: '1,486', trend: 'Captured this month' },
-  ];
-
   protected readonly requests = [
     {
       id: 'REQ-2048',
@@ -281,13 +319,6 @@ export class Dashboard implements OnDestroy {
     },
   ];
 
-  protected readonly stock = [
-    { item: 'Laptop', available: 86, reserved: 14, threshold: 'Healthy' },
-    { item: 'Monitor', available: 41, reserved: 9, threshold: 'Watch' },
-    { item: 'Docking station', available: 18, reserved: 7, threshold: 'Low' },
-    { item: 'Keyboard and mouse set', available: 197, reserved: 22, threshold: 'Healthy' },
-  ];
-
   protected readonly approvals = [
     { lane: 'Take-home approval', owner: 'Line manager', count: 12 },
     { lane: 'ICT removal section', owner: 'ICT Storeroom', count: 7 },
@@ -312,6 +343,7 @@ export class Dashboard implements OnDestroy {
 
   private reloadDashboardData(): void {
     this.availabilityService.loadAll().subscribe();
+    this.assetCaptureService.loadAll().pipe(catchError(() => of([]))).subscribe();
     this.intraRequestService.findAll().subscribe({
       next: (requests) => this.intraRequests.set(requests),
       error: () => this.intraRequests.set([]),
@@ -383,5 +415,67 @@ export class Dashboard implements OnDestroy {
     if (pageStart >= total) {
       this.processingQueuePage.set(0);
     }
+  }
+
+  private inventoryTrend(): string {
+    const groups = this.groupInventoryByType(this.assetCaptureService.stock());
+    const summary = Object.entries(groups)
+      .sort((left, right) => right[1].total - left[1].total)
+      .slice(0, 2)
+      .map(([assetType, counts]) => `${counts.total} ${this.pluralize(assetType, counts.total)}`);
+
+    return summary.length ? summary.join(', ') : 'No equipment captured';
+  }
+
+  private openRequestsTrend(): string {
+    const pendingCount = this.pendingAvailabilityRequests().length;
+
+    return pendingCount === 1 ? '1 awaiting stock check' : `${pendingCount} awaiting stock checks`;
+  }
+
+  private reportRecordCount(): number {
+    return this.assetCaptureService.stock().length + this.availabilityService.requests().length;
+  }
+
+  private reportRecordTrend(): string {
+    const stockCount = this.assetCaptureService.stock().length;
+    const requestCount = this.availabilityService.requests().length;
+
+    return `${stockCount} stock records, ${requestCount} request records`;
+  }
+
+  private groupInventoryByType(stock: EquipmentStockItem[]): Record<string, { total: number; available: number; reserved: number }> {
+    return stock.reduce<Record<string, { total: number; available: number; reserved: number }>>((groups, item) => {
+      const assetType = item.assetType || 'Other';
+
+      groups[assetType] ??= { total: 0, available: 0, reserved: 0 };
+      groups[assetType].total += 1;
+
+      if (item.stockStatus === 'AVAILABLE') {
+        groups[assetType].available += 1;
+      }
+
+      if (item.stockStatus === 'RESERVED') {
+        groups[assetType].reserved += 1;
+      }
+
+      return groups;
+    }, {});
+  }
+
+  private stockThreshold(available: number): 'Healthy' | 'Watch' | 'Low' {
+    if (available <= 2) {
+      return 'Low';
+    }
+
+    if (available <= 5) {
+      return 'Watch';
+    }
+
+    return 'Healthy';
+  }
+
+  private pluralize(value: string, count: number): string {
+    return count === 1 ? value.toLowerCase() : `${value.toLowerCase()}s`;
   }
 }

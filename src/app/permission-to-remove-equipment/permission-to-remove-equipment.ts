@@ -101,6 +101,10 @@ export class PermissionToRemoveEquipment implements OnDestroy {
     return this.authService.hasRole('ICT_STOREROOM');
   }
 
+  protected isSystemAdmin(): boolean {
+    return this.authService.hasRole('ADMIN');
+  }
+
   protected isAssetsUser(): boolean {
     return this.authService.hasRole('ASSET_MANAGEMENT');
   }

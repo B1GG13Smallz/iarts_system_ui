@@ -10,33 +10,66 @@
     </div>
 
     <nav>
-      <a routerLink="/requests">
-        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">send</span>
-        <span class="sidebar-label">Request</span>
-      </a>
-      <a routerLink="/request-status">
-        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">fact_check</span>
-        <span class="sidebar-label">Request status</span>
-      </a>
-      <a routerLink="/laptop-policy-acceptance">
-        <span class="sidebar-icon-pair" aria-hidden="true">
-          <span class="material-symbols-outlined">laptop_mac</span>
-          <span class="material-symbols-outlined">assignment_turned_in</span>
-        </span>
-        <span class="sidebar-label">Laptop policy acceptance form</span>
-      </a>
-      <a routerLink="/assets-approval">
-        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
-        <span class="sidebar-label">View assets approval form</span>
-      </a>
-      <a routerLink="/asset-return">
-        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">keyboard_return</span>
-        <span class="sidebar-label">Asset return</span>
-      </a>
-      <a routerLink="/register" class="active">
-        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
-        <span class="sidebar-label">Register</span>
-      </a>
+      @if (isStoreroom() || isSystemAdmin()) {
+        <a routerLink="/dashboard">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">dashboard</span>
+          <span class="sidebar-label">Dashboard</span>
+        </a>
+        <a routerLink="/asset-capture">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory_2</span>
+          <span class="sidebar-label">Asset capture</span>
+        </a>
+        <a routerLink="/export-report">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">picture_as_pdf</span>
+          <span class="sidebar-label">Export report</span>
+        </a>
+        <a routerLink="/assets-approval">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+          <span class="sidebar-label">View assets approval form</span>
+        </a>
+        <a routerLink="/register" class="active">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+          <span class="sidebar-label">Register</span>
+        </a>
+        <a routerLink="/permission-to-remove-equipment">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
+          <span class="sidebar-label">Permission to remove equipment</span>
+        </a>
+        @if (isStoreroom()) {
+          <a routerLink="/permission-removal-storeroom">
+            <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory</span>
+            <span class="sidebar-label">Storeroom approvals</span>
+          </a>
+        }
+      } @else {
+        <a routerLink="/requests">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">send</span>
+          <span class="sidebar-label">Request</span>
+        </a>
+        <a routerLink="/request-status">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">fact_check</span>
+          <span class="sidebar-label">Request status</span>
+        </a>
+        <a routerLink="/laptop-policy-acceptance">
+          <span class="sidebar-icon-pair" aria-hidden="true">
+            <span class="material-symbols-outlined">laptop_mac</span>
+            <span class="material-symbols-outlined">assignment_turned_in</span>
+          </span>
+          <span class="sidebar-label">Laptop policy acceptance form</span>
+        </a>
+        <a routerLink="/assets-approval">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+          <span class="sidebar-label">View assets approval form</span>
+        </a>
+        <a routerLink="/asset-return">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">keyboard_return</span>
+          <span class="sidebar-label">Asset return</span>
+        </a>
+        <a routerLink="/register" class="active">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+          <span class="sidebar-label">Register</span>
+        </a>
+      }
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">
