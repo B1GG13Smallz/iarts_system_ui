@@ -1,18 +1,13 @@
 import { Component, OnDestroy, computed, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { EquipmentStockItem } from '../models/asset-capture.model';
 import { AuthSession } from '../models/auth.model';
 import { AvailabilityStatus } from '../models/availability-request.model';
-import { IntraRequestPayload, IntraRequestRecord } from '../models/intra-request.model';
+import { IntraRequestRecord } from '../models/intra-request.model';
 import { AssetCaptureService } from '../services/asset-capture.service';
 import { AssetsApproval } from '../assets-approval/assets-approval';
 import { AuthService } from '../services/auth.service';
@@ -26,15 +21,6 @@ interface ProcessingQueueItem {
   equipment: string;
   status: AvailabilityStatus;
   decisionDate: string;
-}
-
-interface AdminRequestForm {
-  referenceNumber: string;
-  requester: string;
-  department: string;
-  subDirectorate: string;
-  assetType: string;
-  justification: string;
 }
 
 interface DashboardStat {
@@ -54,38 +40,23 @@ interface DashboardStockItem {
   selector: 'app-dashboard',
   imports: [
     AssetsApproval,
-    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
-    MatChipsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
     RouterLink,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnDestroy {
-  private readonly referenceNumberPattern = /^(SR|IR)\d{6}$/i;
   private readonly processingQueuePageSize = 10;
+  private readonly adminConfirmationExpiryMs = 60 * 60 * 1000;
   private readonly refreshIntervalId: ReturnType<typeof setInterval>;
   protected readonly intraRequests = signal<IntraRequestRecord[]>([]);
   protected readonly activeView = signal<'dashboard' | 'assetsApproval'>('dashboard');
   protected readonly processingQueuePage = signal(0);
-  protected readonly isSavingAdminRequest = signal(false);
-  protected readonly adminRequestMessage = signal('');
-  protected readonly adminRequest: AdminRequestForm = {
-    referenceNumber: '',
-    requester: '',
-    department: '',
-    subDirectorate: '',
-    assetType: 'Laptop',
-    justification: '',
-  };
   protected readonly pendingAvailabilityRequests = computed(() =>
-    this.availabilityService.requests().filter((request) => request.status === 'PENDING'),
+    this.availabilityService.requests().filter((request) => request.status === 'PENDING' && !this.isExpiredUnreferencedRequest(request)),
   );
   protected readonly processingQueue = computed<ProcessingQueueItem[]>(() =>
     this.availabilityService
@@ -179,49 +150,6 @@ export class Dashboard implements OnDestroy {
     this.activeView.set('assetsApproval');
   }
 
-  protected saveAdminRequest(): void {
-    const referenceNumber = this.adminRequest.referenceNumber.trim().toUpperCase();
-    const requester = this.adminRequest.requester.trim();
-    const department = this.adminRequest.department.trim();
-    const subDirectorate = this.adminRequest.subDirectorate.trim() || department;
-    const assetType = this.adminRequest.assetType.trim();
-    const justification = this.adminRequest.justification.trim();
-
-    this.adminRequestMessage.set('');
-
-    if (!referenceNumber || !requester || !department || !assetType) {
-      this.adminRequestMessage.set('Complete the reference, requester, department and asset type fields.');
-      return;
-    }
-
-    if (!this.referenceNumberPattern.test(referenceNumber)) {
-      this.adminRequestMessage.set('Reference number must start with SR or IR followed by 6 digits, for example SR123456.');
-      return;
-    }
-
-    const payload = this.createIntraPayload(referenceNumber, assetType, requester, department, subDirectorate, justification);
-
-    this.isSavingAdminRequest.set(true);
-    forkJoin({
-      request: this.intraRequestService.save(payload),
-      availability: this.availabilityService.createRequest(assetType, '').pipe(catchError(() => of(null))),
-    })
-      .pipe(finalize(() => this.isSavingAdminRequest.set(false)))
-      .subscribe({
-        next: () => {
-          this.adminRequest.referenceNumber = '';
-          this.adminRequest.requester = '';
-          this.adminRequest.department = '';
-          this.adminRequest.subDirectorate = '';
-          this.adminRequest.assetType = 'Laptop';
-          this.adminRequest.justification = '';
-          this.adminRequestMessage.set('Request saved. The technician dashboard can now find it by reference number.');
-          this.reloadDashboardData();
-        },
-        error: () => this.adminRequestMessage.set('Could not save the request. Please check the reference number and try again.'),
-      });
-  }
-
   protected viewMoreProcessingQueue(): void {
     if (!this.canViewMoreProcessingQueue()) {
       return;
@@ -305,40 +233,20 @@ export class Dashboard implements OnDestroy {
     });
   }
 
-  private createIntraPayload(
-    referenceNumber: string,
-    assetType: string,
-    requester: string,
-    department: string,
-    subDirectorate: string,
-    justification: string,
-  ): IntraRequestPayload {
-    return {
-      referenceNumber,
-      itpNumber: '',
-      orderNumber: '',
-      chiefDirectorate: department,
-      subDirectorate,
-      objective: `${assetType} request`,
-      responsibility: requester,
-      rank: '',
-      chiefUser: requester,
-      callReference: referenceNumber,
-      currentOwner: 'IS STOREROOM',
-      currentBuilding: 'CGO',
-      currentFloor: '4TH',
-      currentOffice: '441',
-      currentRegion: 'HEAD OFFICE',
-      currentContact: '012 406 1724',
-      destinationOwner: requester,
-      destinationBuilding: '',
-      destinationFloor: '',
-      destinationOffice: '',
-      destinationRegion: '',
-      destinationContact: '',
-      movementReason: justification,
-    };
+  private isExpiredUnreferencedRequest(request: { referenceNumber: string | null; createdAt: string }): boolean {
+    if (request.referenceNumber?.trim()) {
+      return false;
+    }
+
+    const createdAt = Date.parse(request.createdAt);
+
+    if (Number.isNaN(createdAt)) {
+      return false;
+    }
+
+    return Date.now() - createdAt >= this.adminConfirmationExpiryMs;
   }
+
 
   private resetProcessingQueuePageIfEmpty(): void {
     const total = this.processingQueue().length;

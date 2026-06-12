@@ -1,3 +1,4 @@
+import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -10,9 +11,11 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { catchError, of, switchMap } from 'rxjs';
 import { AssetsApproval } from '../assets-approval/assets-approval';
 import { AvailabilityRequest } from '../availability/availability-request';
+import { EquipmentStockItem } from '../models/asset-capture.model';
 import { AuthSession } from '../models/auth.model';
 import { IntraRequestPayload } from '../models/intra-request.model';
 import { AuthService } from '../services/auth.service';
+import { AssetCaptureService } from '../services/asset-capture.service';
 import { AvailabilityRequestService } from '../services/availability-request.service';
 import { RequestStatus } from '../availability/request-status';
 import { IntraRequestService } from '../services/intra-request.service';
@@ -34,6 +37,26 @@ import { IntraRequestService } from '../services/intra-request.service';
   ],
   templateUrl: './request-intake.html',
   styleUrl: './request-intake.scss',
+  animations: [
+    trigger('savePromptBackdrop', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('160ms ease-out', style({ opacity: 1 })),
+      ]),
+      transition(':leave', [
+        animate('120ms ease-in', style({ opacity: 0 })),
+      ]),
+    ]),
+    trigger('savePromptCard', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(14px) scale(0.96)' }),
+        animate('180ms cubic-bezier(0.22, 1, 0.36, 1)', style({ opacity: 1, transform: 'translateY(0) scale(1)' })),
+      ]),
+      transition(':leave', [
+        animate('120ms ease-in', style({ opacity: 0, transform: 'translateY(10px) scale(0.98)' })),
+      ]),
+    ]),
+  ],
 })
 export class RequestIntake implements OnDestroy, OnInit {
   private readonly referenceNumberPattern = /^(SR|IR)\d{6}$/i;
@@ -41,6 +64,8 @@ export class RequestIntake implements OnDestroy, OnInit {
   protected referenceNumber = '';
   protected showIntraForm = false;
   protected saveMessage = '';
+  protected savePromptMessage = '';
+  protected savePromptOpen = false;
   protected isSaving = false;
   protected destinationSignatureFileName = '';
   protected destinationSignaturePreviewUrl = '';
@@ -75,6 +100,7 @@ export class RequestIntake implements OnDestroy, OnInit {
   };
 
   constructor(
+    private readonly assetCaptureService: AssetCaptureService,
     private readonly availabilityService: AvailabilityRequestService,
     private readonly authService: AuthService,
     private readonly intraRequestService: IntraRequestService,
@@ -150,11 +176,57 @@ export class RequestIntake implements OnDestroy, OnInit {
     ).subscribe({
       next: () => {
         this.isSaving = false;
-        this.saveMessage = 'INTRA request saved successfully.';
+        this.openSavePrompt('INTRA request saved successfully.');
       },
       error: () => {
         this.isSaving = false;
         this.saveMessage = 'Could not save INTRA request. Please try again.';
+      },
+    });
+  }
+
+  protected confirmSavedRequest(): void {
+    this.savePromptOpen = false;
+    this.clearRequestForm();
+    this.router.navigateByUrl('/request-status');
+  }
+
+  protected cancelSavedRequest(): void {
+    const request = this.availabilityService.request();
+
+    this.savePromptOpen = false;
+
+    if (!request) {
+      this.clearRequestForm();
+      return;
+    }
+
+    this.assetCaptureService.loadAll().pipe(catchError(() => of([]))).subscribe({
+      next: () => {
+        const matchingAsset = this.findMatchingAsset(request.equipment, request.rank);
+
+        if (!matchingAsset) {
+          this.availabilityService.clearCurrentRequest();
+          this.clearRequestForm();
+          return;
+        }
+
+        this.availabilityService.updateStatus(request.id, 'AVAILABLE', {
+          description: this.describeAsset(matchingAsset),
+          serialNumber: matchingAsset.serialNumber ?? '',
+          barCodeNumber: matchingAsset.assetTag,
+        }).subscribe({
+          next: () => {
+            this.availabilityService.clearCurrentRequest();
+            this.clearRequestForm();
+          },
+          error: () => {
+            this.clearRequestForm();
+          },
+        });
+      },
+      error: () => {
+        this.clearRequestForm();
       },
     });
   }
@@ -222,6 +294,68 @@ export class RequestIntake implements OnDestroy, OnInit {
     }
 
     return this.availabilityService.updateReference(availabilityRequest.id, referenceNumber).pipe(catchError(() => of(null)));
+  }
+
+  private openSavePrompt(message: string): void {
+    this.savePromptMessage = message;
+    this.savePromptOpen = true;
+  }
+
+  private clearRequestForm(): void {
+    this.referenceNumber = '';
+    this.saveMessage = '';
+    this.intraRequest.referenceNumber = '';
+    this.intraRequest.itpNumber = '';
+    this.intraRequest.orderNumber = '';
+    this.intraRequest.chiefDirectorate = '';
+    this.intraRequest.subDirectorate = '';
+    this.intraRequest.objective = '';
+    this.intraRequest.responsibility = '';
+    this.intraRequest.rank = '';
+    this.intraRequest.chiefUser = '';
+    this.intraRequest.callReference = '';
+    this.intraRequest.destinationOwner = '';
+    this.intraRequest.destinationBuilding = '';
+    this.intraRequest.destinationFloor = '';
+    this.intraRequest.destinationOffice = '';
+    this.intraRequest.destinationRegion = '';
+    this.intraRequest.destinationContact = '';
+    this.intraRequest.movementReason = '';
+    this.intraRequest.destinationSignatureDate = '';
+    this.intraRequest.destinationSignatureFileName = '';
+    this.intraRequest.destinationSignatureContentType = '';
+    this.intraRequest.destinationSignatureBase64 = '';
+    this.destinationSignatureDate = null;
+    this.clearDestinationSignaturePreview();
+    this.availabilityService.clearCurrentRequest();
+  }
+
+  private findMatchingAsset(equipment: string, rank: string | null): EquipmentStockItem | null {
+    return this.assetCaptureService.stock().find((item) => this.matchesRequest(item, equipment, rank)) ?? null;
+  }
+
+  private matchesRequest(item: EquipmentStockItem, equipment: string, rank: string | null): boolean {
+    return this.normalize(item.storeroomLocation) === this.normalize(rank)
+      && this.equipmentMatches(item, equipment);
+  }
+
+  private equipmentMatches(item: EquipmentStockItem, equipment: string): boolean {
+    const requested = this.normalize(equipment);
+    const assetType = this.normalize(item.assetType);
+    const description = this.normalize(`${item.make ?? ''} ${item.model ?? ''}`);
+
+    return assetType === requested
+      || assetType.includes(requested)
+      || requested.includes(assetType)
+      || (!!description && description.includes(requested));
+  }
+
+  private describeAsset(item: EquipmentStockItem): string {
+    return [item.assetType, item.make, item.model].filter((value) => this.normalize(value)).join(' ').trim();
+  }
+
+  private normalize(value: string | null | undefined): string {
+    return (value ?? '').trim().toLowerCase();
   }
 
   private readDestinationSignatureFile(file: File | undefined): void {

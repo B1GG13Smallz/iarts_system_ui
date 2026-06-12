@@ -262,7 +262,20 @@
         </mat-step>
       </mat-stepper>
       </form>
-    }
+      }
     }
   </section>
+
+  @if (savePromptOpen) {
+    <div class="save-prompt-backdrop" @savePromptBackdrop>
+      <section class="save-prompt" @savePromptCard role="alertdialog" aria-modal="true" aria-labelledby="save-prompt-title">
+        <h2 id="save-prompt-title">Request saved</h2>
+        <p>{{ savePromptMessage }}</p>
+        <div class="save-prompt-actions">
+          <button mat-raised-button color="primary" type="button" (click)="confirmSavedRequest()">Okay</button>
+          <button mat-stroked-button type="button" (click)="cancelSavedRequest()">Cancel</button>
+        </div>
+      </section>
+    </div>
+  }
 </main>

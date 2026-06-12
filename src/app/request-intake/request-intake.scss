@@ -393,6 +393,44 @@ nav {
   }
 }
 
+.save-prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(2px);
+  z-index: 50;
+}
+
+.save-prompt {
+  width: min(420px, 100%);
+  border-radius: 10px;
+  padding: 22px;
+  background: #ffffff;
+  color: #172033;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+
+  h2 {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: 0;
+    color: #4f6176;
+    line-height: 1.5;
+  }
+}
+
+.save-prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
 @media (max-width: 860px) {
   .request-shell {
     grid-template-columns: 1fr;

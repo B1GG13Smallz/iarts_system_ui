@@ -316,17 +316,6 @@ nav {
   font-weight: 700;
 }
 
-.material-chip {
-  display: inline-flex;
-  width: max-content;
-  border-radius: 999px;
-  padding: 6px 10px;
-  background: #fff0e3;
-  color: #8a3f0d;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -396,67 +385,6 @@ nav {
 .compact {
   padding: 8px 10px;
   font-size: 0.85rem;
-}
-
-.request-form {
-  display: grid;
-  gap: 12px;
-
-  label {
-    display: grid;
-    gap: 6px;
-    color: #3a2f28;
-    font-size: 0.84rem;
-    font-weight: 800;
-  }
-
-  input,
-  select,
-  textarea {
-    width: 100%;
-    border: 1px solid #d7c5b6;
-    border-radius: 8px;
-    padding: 11px 12px;
-    color: #171717;
-    background: #fffaf6;
-  }
-
-  .mat-mdc-form-field {
-    --mdc-outlined-text-field-outline-color: #d7c5b6;
-    --mdc-outlined-text-field-hover-outline-color: #f58220;
-    --mdc-outlined-text-field-focus-outline-color: #bd520d;
-    --mdc-outlined-text-field-input-text-color: #171717;
-    --mdc-outlined-text-field-container-color: #fffaf6;
-    --mat-form-field-container-color: #fffaf6;
-  }
-
-  textarea {
-    min-height: 92px;
-    resize: vertical;
-  }
-
-  button {
-    --mdc-protected-button-container-color: transparent;
-    --mdc-protected-button-label-text-color: #ffffff;
-
-    justify-self: start;
-    min-height: 46px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #ffad5c 0%, #f58220 48%, #bd520d 100%);
-    color: #ffffff;
-    font-weight: 800;
-    box-shadow: 0 14px 28px rgba(245, 130, 32, 0.28);
-  }
-}
-
-.request-save-message {
-  margin: 0;
-  border-radius: 8px;
-  padding: 10px 12px;
-  background: #fff0e3;
-  color: #8a3f0d;
-  font-size: 0.84rem;
-  font-weight: 800;
 }
 
 .stock-list,
