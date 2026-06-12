@@ -4,12 +4,14 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { AssetsApproval } from '../assets-approval/assets-approval';
-import { AuthService, AuthSession } from '../auth/auth';
+import { AuthSession } from '../models/auth.model';
+import { TechnicianRequestDetails, TechnicianRequestStatus } from '../models/technician.model';
+import { AuthService } from '../services/auth.service';
 import { LaptopPolicyAcceptance } from '../laptop-policy-acceptance/laptop-policy-acceptance';
 import { Register, RegisterPrefill } from '../register/register';
 import { RequestIntake } from '../request-intake/request-intake';
 import { RequestStatusPage } from '../request-status/request-status-page';
-import { TechnicianRequestDetails, TechnicianRequestStatus, TechnicianService } from './technician.service';
+import { TechnicianService } from '../services/technician.service';
 
 @Component({
   selector: 'app-technician',

@@ -1,25 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { AuthService } from '../auth/auth';
-
-export interface EquipmentStockItem {
-  id: number;
-  assetTag: string;
-  serialNumber: string | null;
-  assetType: string;
-  make: string | null;
-  model: string | null;
-  location: string | null;
-  netTrackReference: string | null;
-  laptopPolicyRequired: boolean;
-  stockRecordId: number | null;
-  stockStatus: string;
-  storeroomLocation: string | null;
-  remarks: string | null;
-}
-
-export type EquipmentStockPayload = Omit<EquipmentStockItem, 'id' | 'stockRecordId'>;
+import { EquipmentStockItem, EquipmentStockPayload } from '../models/asset-capture.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',

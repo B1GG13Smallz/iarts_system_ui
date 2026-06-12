@@ -9,21 +9,34 @@
     </div>
 
     <nav>
-      <button type="button" [class.active]="activeView() === 'technician'" (click)="showTechnician()">Technician</button>
+      <button type="button" [class.active]="activeView() === 'technician'" (click)="showTechnician()">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">engineering</span>
+        <span class="sidebar-label">Technician</span>
+      </button>
       <button type="button" [class.active]="activeView() === 'submittedRequests'" (click)="showSubmittedRequests()">
-        Submitted request forms
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">fact_check</span>
+        <span class="sidebar-label">Submitted request forms</span>
       </button>
       <button type="button" [class.active]="activeView() === 'laptopPolicy'" (click)="showLaptopPolicy()">
-        Laptop policy acceptance
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">assignment_turned_in</span>
+        <span class="sidebar-label">Laptop policy acceptance</span>
       </button>
       <button type="button" [class.active]="activeView() === 'intraRequestReview'" (click)="showIntraRequestReview()">
-        INTRA request review
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">assignment</span>
+        <span class="sidebar-label">INTRA request review</span>
       </button>
       <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
-        View assets approval form
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
+        <span class="sidebar-label">View assets approval form</span>
       </button>
-      <button type="button" [class.active]="activeView() === 'register'" (click)="showRegister()">Register</button>
-      <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
+      <button type="button" [class.active]="activeView() === 'register'" (click)="showRegister()">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+        <span class="sidebar-label">Register</span>
+      </button>
+      <a routerLink="/permission-to-remove-equipment">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
+        <span class="sidebar-label">Permission to remove equipment</span>
+      </a>
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">

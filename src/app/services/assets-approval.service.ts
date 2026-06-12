@@ -1,17 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from '../auth/auth';
-
-export interface AssetApprovalPayload {
-  requestId?: number;
-  permissionRemovalId?: number;
-  movableAssetName: string;
-  approvalDate: string;
-  signatureFileName: string;
-  signatureContentType: string;
-  signatureBase64: string;
-}
+import { AssetApprovalPayload } from '../models/asset-approval.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',

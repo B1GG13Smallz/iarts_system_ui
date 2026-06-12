@@ -115,8 +115,17 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Storeroom shelf/bin</mat-label>
-              <input matInput name="storeroomLocation" [(ngModel)]="form.storeroomLocation" />
+              <mat-label>Storage rank</mat-label>
+              <mat-select name="storeroomLocation" [(ngModel)]="form.storeroomLocation">
+                @for (option of rankOptions; track option.value) {
+                  <mat-option [value]="option.value">
+                    <span class="rank-option">
+                      <span class="rank-value">{{ option.value }}</span>
+                      <span class="rank-details">{{ option.titles }}</span>
+                    </span>
+                  </mat-option>
+                }
+              </mat-select>
             </mat-form-field>
 
             <div class="two-column">
@@ -176,7 +185,7 @@
               <span role="columnheader">Type</span>
               <span role="columnheader">Serial</span>
               <span role="columnheader">Status</span>
-              <span role="columnheader">Location</span>
+              <span role="columnheader">Storage rank</span>
               <span role="columnheader">Actions</span>
             </div>
             @for (item of filteredStock(); track item.id) {

@@ -3,12 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { AvailabilityRequestService } from './availability-request.service';
-
-interface RankOption {
-  value: string;
-  titles: string;
-}
+import { RANK_OPTIONS } from '../models/availability-request.model';
+import { AvailabilityRequestService } from '../services/availability-request.service';
 
 @Component({
   selector: 'app-availability-request',
@@ -22,17 +18,7 @@ export class AvailabilityRequest {
 
   protected equipment = '';
   protected readonly message = signal('');
-  protected readonly rankOptions: RankOption[] = [
-    { value: 'Level 1-2 - Lower skilled', titles: 'Cleaner, General Worker, Groundsman, Messenger' },
-    { value: 'Level 3-5 - Skilled', titles: 'Admin Clerk, Registry Clerk, Driver, Secretary, Artisan Assistant' },
-    { value: 'Level 6-8 - Highly skilled production', titles: 'Senior Admin Clerk, Admin Officer, Supply Chain Officer, Works Inspector, Artisan, Practitioner' },
-    { value: 'Level 9-10 - Highly skilled supervision / junior management', titles: 'Assistant Director, Senior Practitioner, Control Works Inspector, Professional support roles' },
-    { value: 'Level 11-12 - Middle Management Service', titles: 'Deputy Director, Senior Specialist, Assistant/Deputy Manager roles' },
-    { value: 'Level 13 - Senior Management Service', titles: 'Director' },
-    { value: 'Level 14 - Senior Management Service', titles: 'Chief Director' },
-    { value: 'Level 15 - Senior Management Service', titles: 'Deputy Director-General' },
-    { value: 'Level 16 - Senior Management Service', titles: 'Director-General / Head of Department' },
-  ];
+  protected readonly rankOptions = RANK_OPTIONS;
 
   constructor(private readonly availabilityService: AvailabilityRequestService) {}
 

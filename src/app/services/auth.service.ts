@@ -1,16 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-
-export interface AuthResponse {
-  token: string;
-  tokenType: string;
-  userId: number;
-  username: string;
-  roles: string[];
-}
-
-export type AuthSession = AuthResponse;
+import { AuthResponse, AuthSession } from '../models/auth.model';
 
 const ADMIN_ROLES = ['ADMIN', 'ICT_STOREROOM'];
 const ASSET_APPROVAL_ROLES = ['ASSET_MANAGEMENT'];

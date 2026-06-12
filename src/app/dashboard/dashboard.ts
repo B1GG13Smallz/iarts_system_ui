@@ -1,7 +1,7 @@
 import { Component, OnDestroy, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { catchError, finalize, forkJoin, of, switchMap, tap } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,20 +9,15 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { AssetCaptureService, EquipmentStockItem } from '../asset-capture/asset-capture.service';
+import { EquipmentStockItem } from '../models/asset-capture.model';
+import { AuthSession } from '../models/auth.model';
+import { AvailabilityStatus } from '../models/availability-request.model';
+import { IntraRequestPayload, IntraRequestRecord } from '../models/intra-request.model';
+import { AssetCaptureService } from '../services/asset-capture.service';
 import { AssetsApproval } from '../assets-approval/assets-approval';
-import { AuthService, AuthSession } from '../auth/auth';
-import {
-  AvailabilityRequestService,
-  AvailabilityStatus,
-  EquipmentAvailabilityRequest,
-} from '../availability/availability-request.service';
-import {
-  EquipmentDetailsDialog,
-  EquipmentDetailsDialogResult,
-} from './equipment-details-dialog';
-import { IntraRequestPayload, IntraRequestRecord, IntraRequestService } from '../request-intake/intra-request.service';
+import { AuthService } from '../services/auth.service';
+import { AvailabilityRequestService } from '../services/availability-request.service';
+import { IntraRequestService } from '../services/intra-request.service';
 
 interface ProcessingQueueItem {
   id: number;
@@ -67,7 +62,6 @@ interface DashboardStockItem {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatDialogModule,
     RouterLink,
   ],
   templateUrl: './dashboard.html',
@@ -153,7 +147,6 @@ export class Dashboard implements OnDestroy {
     private readonly assetCaptureService: AssetCaptureService,
     protected readonly availabilityService: AvailabilityRequestService,
     private readonly authService: AuthService,
-    private readonly dialog: MatDialog,
     private readonly intraRequestService: IntraRequestService,
     private readonly router: Router,
   ) {
@@ -184,20 +177,6 @@ export class Dashboard implements OnDestroy {
 
   protected showAssetsApproval(): void {
     this.activeView.set('assetsApproval');
-  }
-
-  protected updateAvailability(id: number, status: AvailabilityStatus): void {
-    const request = this.availabilityService.requests().find((item) => item.id === id);
-
-    if (!request) {
-      return;
-    }
-
-    this.ensureIntraRequestForAvailability(request)
-      .pipe(
-        switchMap(() => this.availabilityService.updateStatus(id, status)),
-      )
-      .subscribe(() => this.resetProcessingQueuePageIfEmpty());
   }
 
   protected saveAdminRequest(): void {
@@ -240,30 +219,6 @@ export class Dashboard implements OnDestroy {
           this.reloadDashboardData();
         },
         error: () => this.adminRequestMessage.set('Could not save the request. Please check the reference number and try again.'),
-      });
-  }
-
-  protected openAvailableDialog(request: EquipmentAvailabilityRequest): void {
-    this.dialog
-      .open<EquipmentDetailsDialog, EquipmentAvailabilityRequest, EquipmentDetailsDialogResult>(
-        EquipmentDetailsDialog,
-        {
-          autoFocus: 'first-tabbable',
-          data: request,
-          disableClose: true,
-        },
-      )
-      .afterClosed()
-      .subscribe((details) => {
-        if (!details) {
-          return;
-        }
-
-        this.ensureIntraRequestForAvailability(request)
-          .pipe(
-            switchMap(() => this.availabilityService.updateStatus(request.id, 'AVAILABLE', details)),
-          )
-          .subscribe(() => this.resetProcessingQueuePageIfEmpty());
       });
   }
 
@@ -348,29 +303,6 @@ export class Dashboard implements OnDestroy {
       next: (requests) => this.intraRequests.set(requests),
       error: () => this.intraRequests.set([]),
     });
-  }
-
-  private ensureIntraRequestForAvailability(request: EquipmentAvailabilityRequest) {
-    const referenceNumber = request.referenceNumber?.trim().toUpperCase();
-
-    if (!referenceNumber) {
-      return of(null);
-    }
-
-    const existingRequest = this.intraRequests().find(
-      (item) => item.referenceNumber.trim().toUpperCase() === referenceNumber,
-    );
-
-    if (existingRequest) {
-      return of(existingRequest);
-    }
-
-    return this.intraRequestService
-      .save(this.createIntraPayload(referenceNumber, request.equipment, 'Not captured', 'ICT Assets', 'ICT Assets', ''))
-      .pipe(
-        catchError(() => of(null)),
-        tap(() => this.reloadDashboardData()),
-      );
   }
 
   private createIntraPayload(

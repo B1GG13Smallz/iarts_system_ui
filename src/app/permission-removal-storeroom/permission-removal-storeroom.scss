@@ -61,10 +61,19 @@ nav {
   gap: 8px;
 
   a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     border-radius: 8px;
     padding: 12px 14px;
     color: #dce8f4;
     text-decoration: none;
+  }
+
+  .sidebar-icon {
+    flex: 0 0 auto;
+    font-size: 1.15rem;
+    line-height: 1;
   }
 
   a.active,

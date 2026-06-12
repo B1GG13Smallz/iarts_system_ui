@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AssetsApproval } from '../assets-approval/assets-approval';
-import { AuthService, AuthSession } from '../auth/auth';
+import { AuthSession } from '../models/auth.model';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-asset-return',

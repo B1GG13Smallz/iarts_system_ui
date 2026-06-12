@@ -1,8 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AuthService, AuthSession } from '../auth/auth';
-import { IntraRequestRecord, IntraRequestService } from '../request-intake/intra-request.service';
+import { AuthSession } from '../models/auth.model';
+import { IntraRequestRecord } from '../models/intra-request.model';
+import { AuthService } from '../services/auth.service';
+import { IntraRequestService } from '../services/intra-request.service';
 
 @Component({
   selector: 'app-request-status-page',

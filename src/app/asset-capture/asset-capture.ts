@@ -6,8 +6,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { AssetCaptureService, EquipmentStockItem, EquipmentStockPayload } from './asset-capture.service';
-import { AuthService, AuthSession } from '../auth/auth';
+import { EquipmentStockItem, EquipmentStockPayload } from '../models/asset-capture.model';
+import { AuthSession } from '../models/auth.model';
+import { RANK_OPTIONS } from '../models/availability-request.model';
+import { AssetCaptureService } from '../services/asset-capture.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-asset-capture',
@@ -28,6 +31,7 @@ export class AssetCapture implements OnInit {
   protected readonly editingId = signal<number | null>(null);
   protected readonly message = signal('');
   protected readonly query = signal('');
+  protected readonly rankOptions = RANK_OPTIONS;
   protected readonly filteredStock = computed(() => {
     const search = this.query().trim().toLowerCase();
 

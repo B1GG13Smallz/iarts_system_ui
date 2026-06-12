@@ -1,40 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from '../auth/auth';
-
-export interface PermissionSignaturePayload {
-  fileName: string;
-  contentType: string;
-  base64: string;
-}
-
-export interface PermissionToRemoveEquipmentPayload {
-  officialName: string;
-  unitDirectorateBranch: string;
-  telephoneNumber: string;
-  identityOrPersalNumber: string;
-  removalReason: string;
-  officialSignature?: PermissionSignaturePayload;
-  equipmentDescription: string;
-  barCode: string;
-  serialNumber: string;
-  currentLocation: string;
-  period: string;
-  newLocation: string;
-  ictSignature?: PermissionSignaturePayload;
-  ictDate: string;
-  mamSignature?: PermissionSignaturePayload;
-  mamDate: string;
-  securitySignature?: PermissionSignaturePayload;
-  securityDate: string;
-}
-
-export interface PermissionRemovalRecord extends PermissionToRemoveEquipmentPayload {
-  id: number;
-  workflowStatus: string;
-  createdByUsername: string;
-}
+import { PermissionRemovalRecord, PermissionToRemoveEquipmentPayload } from '../models/permission-removal.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',

@@ -8,13 +8,14 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { AuthService, AuthSession } from '../auth/auth';
+import { AuthSession } from '../models/auth.model';
 import {
   PermissionRemovalRecord,
   PermissionSignaturePayload,
   PermissionToRemoveEquipmentPayload,
-  PermissionToRemoveEquipmentService,
-} from './permission-to-remove-equipment.service';
+} from '../models/permission-removal.model';
+import { AuthService } from '../services/auth.service';
+import { PermissionToRemoveEquipmentService } from '../services/permission-to-remove-equipment.service';
 
 interface SignatureState {
   fileName: string;

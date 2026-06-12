@@ -1,29 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable, of, tap } from 'rxjs';
-import { AuthService } from '../auth/auth';
-
-export type AvailabilityStatus = 'PENDING' | 'AVAILABLE' | 'UNAVAILABLE';
-
-export interface EquipmentAvailabilityRequest {
-  id: number;
-  requesterName: string;
-  referenceNumber: string | null;
-  equipment: string;
-  rank: string | null;
-  description: string | null;
-  serialNumber: string | null;
-  barCodeNumber: string | null;
-  status: AvailabilityStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AvailableEquipmentDetails {
-  description: string;
-  serialNumber: string;
-  barCodeNumber: string;
-}
+import { AvailableEquipmentDetails, AvailabilityStatus, EquipmentAvailabilityRequest } from '../models/availability-request.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',

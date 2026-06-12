@@ -9,15 +9,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { AuthService, AuthSession } from '../auth/auth';
+import { AuthSession } from '../models/auth.model';
 import {
   RegisterPayload,
   RegisterRecord,
-  RegisterService,
   RegisterSignaturePayload,
   RegisterType,
   StoresOfficialSignaturePayload,
-} from './register.service';
+} from '../models/register.model';
+import { AuthService } from '../services/auth.service';
+import { RegisterService } from '../services/register.service';
 
 interface SignatureState {
   fileName: string;

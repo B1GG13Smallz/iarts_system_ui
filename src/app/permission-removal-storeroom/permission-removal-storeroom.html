@@ -9,11 +9,26 @@
     </div>
 
     <nav>
-      <a routerLink="/dashboard">Dashboard</a>
-      <a routerLink="/asset-capture">Asset capture</a>
-      <a routerLink="/register">Register</a>
-      <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
-      <a routerLink="/permission-removal-storeroom" class="active">Storeroom approvals</a>
+      <a routerLink="/dashboard">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">dashboard</span>
+        <span class="sidebar-label">Dashboard</span>
+      </a>
+      <a routerLink="/asset-capture">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory_2</span>
+        <span class="sidebar-label">Asset capture</span>
+      </a>
+      <a routerLink="/register">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
+        <span class="sidebar-label">Register</span>
+      </a>
+      <a routerLink="/permission-to-remove-equipment">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
+        <span class="sidebar-label">Permission to remove equipment</span>
+      </a>
+      <a routerLink="/permission-removal-storeroom" class="active">
+        <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">inventory</span>
+        <span class="sidebar-label">Storeroom approvals</span>
+      </a>
     </nav>
 
     <section class="sidebar-footer" aria-label="Signed in user">

@@ -7,10 +7,13 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { AuthService, AuthSession } from '../auth/auth';
-import { AssetsApprovalService } from './assets-approval.service';
-import { IntraRequestPayload, IntraRequestRecord, IntraRequestService } from '../request-intake/intra-request.service';
-import { TechnicianRequestDetails, TechnicianService } from '../technician/technician.service';
+import { AuthSession } from '../models/auth.model';
+import { IntraRequestPayload, IntraRequestRecord } from '../models/intra-request.model';
+import { TechnicianRequestDetails } from '../models/technician.model';
+import { AuthService } from '../services/auth.service';
+import { AssetsApprovalService } from '../services/assets-approval.service';
+import { IntraRequestService } from '../services/intra-request.service';
+import { TechnicianService } from '../services/technician.service';
 
 interface SignatureUploadState {
   fileName: string;

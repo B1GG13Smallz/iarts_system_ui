@@ -3,9 +3,12 @@ import { Router, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { AssetCaptureService, EquipmentStockItem } from '../asset-capture/asset-capture.service';
-import { AuthService, AuthSession } from '../auth/auth';
-import { AvailabilityRequestService, EquipmentAvailabilityRequest } from '../availability/availability-request.service';
+import { EquipmentStockItem } from '../models/asset-capture.model';
+import { AuthSession } from '../models/auth.model';
+import { EquipmentAvailabilityRequest } from '../models/availability-request.model';
+import { AssetCaptureService } from '../services/asset-capture.service';
+import { AuthService } from '../services/auth.service';
+import { AvailabilityRequestService } from '../services/availability-request.service';
 
 interface InventorySummaryRow {
   assetType: string;

@@ -1,4 +1,3 @@
-@if (canProceed()) {
 <section class="status-card" aria-labelledby="status-title">
   <div>
     <span class="eyebrow">Status</span>
@@ -20,8 +19,9 @@
     </dl>
   }
 
-  <button mat-raised-button class="proceed-button" type="button" (click)="proceed.emit()">
-    Proceed
-  </button>
+  @if (canProceed()) {
+    <button mat-raised-button class="proceed-button" type="button" (click)="proceed.emit()">
+      Proceed
+    </button>
+  }
 </section>
-}

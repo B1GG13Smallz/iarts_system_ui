@@ -10,7 +10,10 @@
 
     <nav>
       @if (isAdmin()) {
-        <a routerLink="/dashboard">Dashboard</a>
+        <a routerLink="/dashboard">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">dashboard</span>
+          <span class="sidebar-label">Dashboard</span>
+        </a>
       } @else {
         <button type="button" [class.active]="activeView() === 'request'" (click)="showRequest()">
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">send</span>
@@ -35,7 +38,10 @@
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">app_registration</span>
           <span class="sidebar-label">Register</span>
         </a>
-        <a routerLink="/permission-to-remove-equipment">Permission to remove equipment</a>
+        <a routerLink="/permission-to-remove-equipment">
+          <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">verified_user</span>
+          <span class="sidebar-label">Permission to remove equipment</span>
+        </a>
         <button type="button" [class.active]="activeView() === 'assetsApproval'" (click)="showAssetsApproval()">
           <span class="material-symbols-outlined sidebar-icon" aria-hidden="true">approval</span>
           <span class="sidebar-label">View assets approval form</span>

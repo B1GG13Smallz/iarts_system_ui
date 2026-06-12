@@ -9,11 +9,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatStepperModule } from '@angular/material/stepper';
 import { catchError, of, switchMap } from 'rxjs';
 import { AssetsApproval } from '../assets-approval/assets-approval';
-import { AuthService, AuthSession } from '../auth/auth';
 import { AvailabilityRequest } from '../availability/availability-request';
-import { AvailabilityRequestService } from '../availability/availability-request.service';
+import { AuthSession } from '../models/auth.model';
+import { IntraRequestPayload } from '../models/intra-request.model';
+import { AuthService } from '../services/auth.service';
+import { AvailabilityRequestService } from '../services/availability-request.service';
 import { RequestStatus } from '../availability/request-status';
-import { IntraRequestPayload, IntraRequestService } from './intra-request.service';
+import { IntraRequestService } from '../services/intra-request.service';
 
 @Component({
   selector: 'app-request-intake',
